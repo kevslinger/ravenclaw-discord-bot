@@ -85,7 +85,9 @@ def house_points_help():
                           url=help_constants.HOUSE_POINTS_README,
                           color=constants.EMBED_COLOR)
     embed.add_field(name=f"{constants.BOT_PREFIX}housepoints",
-                    value="Get the current house points standings!",
+                    value=f"Get the current house points standings!\n"
+                          f"Optional: add a month and year to get old results.\n"
+                          f"e.g. {constants.BOT_PREFIX}housepoints November 2020",
                     inline=False)
     embed = more_help(embed, help_constants.HOUSE_POINTS_README)
     return embed

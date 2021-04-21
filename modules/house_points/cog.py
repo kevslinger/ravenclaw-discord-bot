@@ -28,7 +28,7 @@ class HousePointsCog(commands.Cog, name="House Points"):
         args (Optional): Month and Year to find historical house points (e.g. April 2015)"""
         print("Received housepoints")
         # If the user does not supply a month/date pair
-        if len(args) < 2:
+        if (len(args) < 2) or (' '.join(args[:2]) == datetime.now().strftime('%B %Y')):
             # The points will return as a tensor, so we index 0 to drop the extra dimension
             points = [int(pts[0]) for pts in self.current_points_sheet.batch_get(house_points_constants.CURRENT_HOUSE_POINTS_RANGE)[0]]
             points_str = [f"{house}: {points[idx]}" for idx, house in enumerate(house_points_constants.HOUSES)]
@@ -49,7 +49,6 @@ class HousePointsCog(commands.Cog, name="House Points"):
                                 inline=False)
                 await ctx.send(embed=embed)
                 return
-            print(points)
             points_str = [f"{house}: {points[i]}" for i, house in enumerate(house_points_constants.HOUSES)]
             title = f"House Points Totals for {date}"
         embed = discord.Embed(title=title,
