@@ -16,7 +16,8 @@ class HousePointsCog(commands.Cog, name="House Points"):
         self.spreadsheet = self.client.open_by_key(self.sheet_key)
 
         self.current_points_sheet = self.spreadsheet.worksheet("Current Points")
-        self.history_sheet = self.spreadsheet.worksheet("Past Points")
+        # TODO: Add something like ~housepoints May 2020
+        #self.history_sheet = self.spreadsheet.worksheet("Past Points")
 
 
     @commands.command(name="housepoints")
@@ -27,10 +28,10 @@ class HousePointsCog(commands.Cog, name="House Points"):
         # The points will return as a tensor, so we index 0 to drop the extra dimension
         points = self.current_points_sheet.batch_get(house_points_constants.CURRENT_HOUSE_POINTS_RANGE)[0]
         points_str = [f"{house}: {points[idx][0]}" for idx, house in enumerate(house_points_constants.HOUSES)]
-        embed = discord.Embed(color=house_points_utils.get_winner_embed_color([int(pts[0]) for pts in points]))
-        embed.add_field(name=f"Points Totals as of {datetime.now().strftime('%B-%d')}",
-                        value=f"{chr(10).join(points_str)}",
-                        inline=False)
+        embed = discord.Embed(title=f"House Points Totals as of {datetime.now().strftime('%B %d')}",
+                              description=f"{chr(10).join(points_str)}",
+                              url=self.spreadsheet.url,
+                              color=house_points_utils.get_winner_embed_color([int(pts[0]) for pts in points]))
         await ctx.send(embed=embed)
 
 
