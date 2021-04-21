@@ -59,7 +59,6 @@ class TimeCog(commands.Cog, name="Time"):
 def format_time(time):
     """Rearrange time str. Comes in as YYYY-MM-DD HH:MM, change to MM-DD-YYYY HH:MM"""
     date = datetime.strptime(time, "%Y-%m-%d %H:%M")
-    #return f"{date.month}-{date.day}-{date.year} {date.hour}:{date.minute}"
     return date.strftime('%B %d, %H:%M')
 
 def setup(bot):
