@@ -28,6 +28,12 @@ class HelpCog(commands.Cog):
                                    "to start a race! "
                                   f"\nRead more on the [GitHub README]({help_constants.CIPHER_RACE_README})",
                             inline=False)
+            embed.add_field(name=help_constants.HOUSE_POINTS,
+                            value=f"Get the house points standings! "
+                                  f"Use {constants.BOT_PREFIX}housepoints to get the "
+                                  f"current house points tallies."
+                                  f"\nRead more on the [GitHub README]({help_constants.HOUSE_POINTS_README})",
+                            inline=False)
             embed.add_field(name=help_constants.LOOKUP,
                             value=f"Search the interwebs (google)!\n"
                                   f"Read more on the [GitHub README]({help_constants.LOOKUP_README})",
@@ -74,6 +80,17 @@ def cipher_race_help():
     return embed
 
 
+def house_points_help():
+    embed = discord.Embed(title=f"{help_constants.HOUSE_POINTS} {help_constants.HELP}",
+                          url=help_constants.HOUSE_POINTS_README,
+                          color=constants.EMBED_COLOR)
+    embed.add_field(name=f"{constants.BOT_PREFIX}housepoints",
+                    value="Get the current house points standings!",
+                    inline=False)
+    embed = more_help(embed, help_constants.HOUSE_POINTS_README)
+    return embed
+
+
 def lookup_help():
     embed = discord.Embed(title=f"{help_constants.LOOKUP} {help_constants.HELP}",
                           url=help_constants.LOOKUP_README,
@@ -109,6 +126,7 @@ def time_help():
 
 MODULE_TO_HELP = {
     help_constants.CIPHER_RACE.lower() : cipher_race_help,
+    help_constants.HOUSE_POINTS.lower(): house_points_help,
     help_constants.LOOKUP.lower(): lookup_help,
     help_constants.TIME.lower(): time_help
 }

@@ -2,7 +2,7 @@ import geopy
 import os
 from discord.ext import commands
 from utils import discord_utils
-import datetime
+from datetime import datetime
 
 class TimeCog(commands.Cog, name="Time"):
     """Get time and timezone of any location"""
@@ -58,9 +58,9 @@ class TimeCog(commands.Cog, name="Time"):
 
 def format_time(time):
     """Rearrange time str. Comes in as YYYY-MM-DD HH:MM, change to MM-DD-YYYY HH:MM"""
-    date = datetime.datetime.strptime(time, "%Y-%m-%d %H:%M")
-    return f"{date.month}-{date.day}-{date.year} {date.hour}:{date.minute}"
-
+    date = datetime.strptime(time, "%Y-%m-%d %H:%M")
+    #return f"{date.month}-{date.day}-{date.year} {date.hour}:{date.minute}"
+    return date.strftime('%B %d, %H:%M')
 
 def setup(bot):
     bot.add_cog(TimeCog(bot))

@@ -1,0 +1,18 @@
+####################
+### HOUSE POINTS ###
+####################
+
+GRYFFINDOR = "Gryffindor"
+HUFFLEPUFF = "Hufflepuff"
+RAVENCLAW = "Ravenclaw"
+SLYTHERIN = "Slytherin"
+HOUSES = [GRYFFINDOR, HUFFLEPUFF, RAVENCLAW, SLYTHERIN]
+
+# In Current Points sheet, the points are in cells B1, B2, B3, B4
+CURRENT_HOUSE_POINTS_RANGE = ["B1:B4"]
+
+GRYFF_EMBED_COLOR = 0xff4e4e
+PUFF_EMBED_COLOR = 0xffee4e
+CLAW_EMBED_COLOR = 0x4ee4ff
+SNEK_EMBED_COLOR = 0x4eff4e
+EMBED_COLORS = [GRYFF_EMBED_COLOR, PUFF_EMBED_COLOR, CLAW_EMBED_COLOR, SNEK_EMBED_COLOR]
