@@ -20,7 +20,6 @@ class ErrorHandler:
     def handle_error(self):
         """Send error to user and error log channel"""
         error_details = self.trace if self.trace != "NoneType: None\n" else self.error
-        print(f"In handle_error")
         logging.warning(error_details)
         print(f"Printing from handle_error {error_details}")
         self.__log_to_file(error_constants.ERROR_LOGFILE, error_details)

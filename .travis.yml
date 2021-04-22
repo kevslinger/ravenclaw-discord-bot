@@ -7,4 +7,10 @@ script:
 - python -m pytest
 notifications:
   email: esslinger.k@northeastern.edu
-
+deploy:
+  provider: heroku
+  app: ravenclaw-discord-bot
+  api_key:
+    secure: DALAMgoY77VlR4Q6JEQneLx8UR7istZ/pdrJCnE/mAN0ctRdGXd3Mj5+mSZ5OH8EECerzphAea769Vl4Gn/A6V1GDCADUrbuipnNHGzUcvwGwQIi0pLUxrkMPCNcydPmGOYkudeedRpIE/dTOTwJSZABzVh50oNr7l+AjYVIuBOTIazenTCw8X8q3Mf6+hNOXmgivpX49OOl/uRecKxxbUchRcNpaxcTVmxvt1N941g+o6okXLk8vl+1I9YLRlFGNbvKf1OIWg4VQyYerL5rx0EPissGUK7TqBqY6ONva23XdtEuuAXAXHBzDKJ+CLNTIcAdJxCwPM5MvsOZbCBdO8aIcm5o9gRKQviKUKq0Ko87AKwOxBJ0CqIuF+EsJRAugYNe4JB6wFg6YCrT2WZ98Foiog3Gi9kuZNtXCyx+73OgEL5Ss3a4g4XvF1MfyHJpTFPIPz3u8Dy19D/OrJa8IJYrjDnWWuXooSjHDDvWu26f0BsYcHAUkMB7GyaZsrIPuCOFoz3OzEot+5pSZTYQZ+xerjAV1C62JnMJBwdWn8izvOGks/dVoCuj3eAXpAf/MeRoQv/6dgIL1FaWSTQQ1UELyaTFuKDLJFZq4G497PsOQhjSZz7lILQUR/6SJcAxNeKV16tECl1MTGut2tCEAP9x/p9b4+vXFx5TW4cEjYY=
+  on:
+    repo: kevslinger/ravenclaw-discord-bot

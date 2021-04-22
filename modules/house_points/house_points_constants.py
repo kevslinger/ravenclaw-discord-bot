@@ -20,14 +20,14 @@ EMBED_COLORS = [GRYFF_EMBED_COLOR, PUFF_EMBED_COLOR, CLAW_EMBED_COLOR, SNEK_EMBE
 HISTORY_COLUMNS = ['', 'Date', '', GRYFFINDOR, '', HUFFLEPUFF, '', RAVENCLAW, '', SLYTHERIN]
 
 ARITHMANCY = "Arithmancy"
-INTERHOUSE = "Interhouse Challenge"
+INTERHOUSE = "Challenge"
 DUELING = "Dueling"
 EXTRA_CREDIT = "Extra Credit"
 FANWORKS = "Fanworks"
-DISCUSSION_COMMENT = "Great Discussion/Comment"
+DISCUSSION_COMMENT = "Great Comment"
 HOMEWORK = "Homework"
-IN_HOUSE = "In-House Contest"
-HUMOR = "Just Because/Humor"
+IN_HOUSE = "In-House"
+HUMOR = "Humor"
 QUIDDITCH = "Quidditch"
 ACTIVITIES = [ARITHMANCY,
               INTERHOUSE,
@@ -40,15 +40,15 @@ ACTIVITIES = [ARITHMANCY,
               HUMOR,
               QUIDDITCH]
 ACTIVITY_SHEET_RANGE_MAP = {
-    ARITHMANCY: ["C3:C6"],
-    INTERHOUSE: ["F3:F6"],
-    DUELING: ["I3:I6"],
-    EXTRA_CREDIT: ["C10:C13"],
-    FANWORKS: ["F10:F13"],
-    DISCUSSION_COMMENT: ["I10:I13"],
-    HOMEWORK: ["C17:C20"],
-    IN_HOUSE: ["F17:F20"],
-    HUMOR: ["I17:I20"],
-    QUIDDITCH: ["C24:C27"]
+    ARITHMANCY: "C3:C6",
+    INTERHOUSE: "F3:F6",
+    DUELING: "I3:I6",
+    EXTRA_CREDIT: "C10:C13",
+    FANWORKS: "F10:F13",
+    DISCUSSION_COMMENT: "I10:I13",
+    HOMEWORK: "C17:C20",
+    IN_HOUSE: "F17:F20",
+    HUMOR: "I17:I20",
+    QUIDDITCH: "C24:C27"
 }
 
