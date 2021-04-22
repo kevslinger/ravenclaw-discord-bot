@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from discord.ext.tasks import loop
 import asyncio
 import os
 import modules.code.code_utils as utils
@@ -50,10 +51,13 @@ class CodeCog(commands.Cog):
                 self.client.open_by_key(os.getenv("CHALLENGE_SHEET_KEY").replace('\'', '')).sheet1,
                 code_constants.COLUMNS),
         }
-        
-        # Reload the google sheet every hour
-        bot.loop.create_task(self.reload_sheet())
-            
+
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        """When discord is connected"""
+        self.reload_sheet.start()
+
     @commands.command(name='startrace', aliases=['StarTrace', 'StartRace'])
     async def startrace(self, ctx):
         """
@@ -263,12 +267,11 @@ class CodeCog(commands.Cog):
 
     # Reload the Google sheet every hour so we can dynamically add
     # Without needing to restart the bot
+    @loop(hours=24)
     async def reload_sheet(self):
-        await self.bot.wait_until_ready()
-        while True:
-            await asyncio.sleep(3600) # 1 hour
-            self.codes = google_utils.get_dataframe_from_gsheet(self.sheet, code_constants.COLUMNS)
-            print(f"Reloaded {code_constants.CODE} sheet on schedule")
+        """Reload the google sheet every 24 hours"""
+        self.codes = google_utils.get_dataframe_from_gsheet(self.sheet, code_constants.COLUMNS)
+        print(f"Reloaded {code_constants.CODE} sheet on schedule")
 
     async def start_new_level(self, ctx, channel, embeds):
         """Send the codes for the next level. Used on a timer

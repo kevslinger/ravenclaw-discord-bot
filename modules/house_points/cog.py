@@ -15,10 +15,8 @@ class HousePointsCog(commands.Cog, name="House Points"):
         self.sheet_key = os.getenv("HOUSE_POINTS_SHEET_KEY").replace('\'', '')
         self.spreadsheet = self.client.open_by_key(self.sheet_key)
 
-        self.current_points_sheet = self.spreadsheet.worksheet("Current Points")
+        self.current_points_sheet = self.spreadsheet.worksheet("Tallies By Category")
         self.history_sheet = self.spreadsheet.worksheet("Past Points")
-        self.history_points_df = google_utils.get_dataframe_from_gsheet(self.history_sheet,
-                                                                        house_points_constants.HISTORY_COLUMNS)
 
 
     @commands.command(name="housepoints")
@@ -37,15 +35,17 @@ class HousePointsCog(commands.Cog, name="House Points"):
         else:
             # Only the first two args are relevant (if they supply "Jan 2020 hello" then cut off hello)
             date = ' '.join(args[:2])
+            history_points_df = google_utils.get_dataframe_from_gsheet(self.history_sheet,
+                                                                       house_points_constants.HISTORY_COLUMNS)
             try:
-                points = [int(pts) for pts in self.history_points_df[self.history_points_df['Date'] == date][house_points_constants.HOUSES].iloc[0]]
+                points = [int(pts) for pts in history_points_df[history_points_df['Date'] == date][house_points_constants.HOUSES].iloc[0]]
             # Date does not exist in sheet
             except (IndexError, ValueError):
                 embed = discord_utils.create_embed()
                 # First two rows in the Date column are header/blank
                 embed.add_field(name="Error!",
                                 value=f"Sorry, I couldn't find {date} in my database. I can tell you the house points from "
-                                      f"{self.history_points_df['Date'].iloc[2]} until {datetime.now().strftime('%B %Y')}",
+                                      f"{history_points_df['Date'].iloc[2]} until {datetime.now().strftime('%B %Y')}",
                                 inline=False)
                 await ctx.send(embed=embed)
                 return
@@ -54,9 +54,35 @@ class HousePointsCog(commands.Cog, name="House Points"):
         embed = discord.Embed(title=title,
                               description=f"{chr(10).join(points_str)}",
                               url=self.spreadsheet.url,
-                              color=house_points_utils.get_winner_embed_color([pts for pts in points]))
+                              color=house_points_utils.get_winner_embed_color(points))
 
         await ctx.send(embed=embed)
+
+    @commands.command(name="housepointsbreakdown")
+    async def housepointsbreakdown(self, ctx):
+        """
+        Get the breakdown of current month's points by activity
+        """
+        print("Received housepointsbreakdown")
+        title = f"House Points Breakdown as of {datetime.now().strftime('%B %d')}"
+
+        total_points = [int(pts[0]) for pts in
+                  self.current_points_sheet.batch_get(house_points_constants.CURRENT_HOUSE_POINTS_RANGE)[0]]
+        points_str = [f"{house}: {total_points[idx]}" for idx, house in enumerate(house_points_constants.HOUSES)]
+        embed = discord.Embed(title=title,
+                              url=self.spreadsheet.url,
+                              color=house_points_utils.get_winner_embed_color(total_points))
+
+        for activity in house_points_constants.ACTIVITIES:
+            activity_points = [int(pts[0]) for pts in
+                               self.current_points_sheet.batch_get(house_points_constants.ACTIVITY_SHEET_RANGE_MAP[activity])[0]]
+            activity_points_str = [f"{house}: {activity_points[idx]}" for idx, house in enumerate(house_points_constants.HOUSES)]
+            embed.add_field(name=activity,
+                            value=chr(10).join(activity_points_str))
+        embed.add_field(name="Total",
+                        value=chr(10).join(points_str))
+        await ctx.send(embed=embed)
+
 
 
 def setup(bot):

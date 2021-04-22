@@ -89,6 +89,9 @@ def house_points_help():
                           f"Optional: add a month and year to get old results.\n"
                           f"e.g. {constants.BOT_PREFIX}housepoints November 2020",
                     inline=False)
+    embed.add_field(name=f"{constants.BOT_PREFIX}housepointsbreakdown",
+                    value=f"Get a full activity-by-activity breakdown of the current "
+                          f"month's house points standings!")
     embed = more_help(embed, help_constants.HOUSE_POINTS_README)
     return embed
 
