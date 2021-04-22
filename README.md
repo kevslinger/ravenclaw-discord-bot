@@ -1,5 +1,6 @@
 # Ravenclaw Discord Bot (still working on name)
 [![Build Status](https://travis-ci.com/kevslinger/ravenclaw-discord-bot.svg?branch=main)](https://travis-ci.com/kevslinger/ravenclaw-discord-bot)
+ [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Modules
  
@@ -14,7 +15,8 @@
 
 Big thanks to [Jonah Lawrence](https://github.com/DenverCoder1) and his [Professor Vector](https://github.com/DenverCoder1/professor-vector-discord-bot)
 repo for much inspiration and code, specifically on the
-[Error Logging](https://github.com/DenverCoder1/professor-vector-discord-bot/tree/main/modules/error_log)  and [Reddit Feed](https://github.com/DenverCoder1/professor-vector-discord-bot/tree/main/modules/reddit_feed) modules. 
+[Error Logging](https://github.com/DenverCoder1/professor-vector-discord-bot/tree/main/modules/error_log)  and [Reddit Feed](https://github.com/DenverCoder1/professor-vector-discord-bot/tree/main/modules/reddit_feed) modules.
+Be sure to check out his profile for all his cool projects!
 
 ## Issues
 
