@@ -30,6 +30,7 @@ class HousePointsCog(commands.Cog, name="House Points"):
             # The points will return as a tensor, so we index 0 to drop the extra dimension
             points = [pts[0] for pts in self.current_points_sheet.batch_get(house_points_constants.CURRENT_HOUSE_POINTS_RANGE)[0]]
             title = f"House Points Totals as of {datetime.now().strftime('%B %d')}"
+            embed_url = house_points_utils.get_points_tally_tab_url(self.spreadsheet)
         # If they do supply args we're going to get the date they supplied.
         else:
             # Only the first two args are relevant (if they supply "Jan 2020 hello" then cut off hello)
@@ -49,11 +50,12 @@ class HousePointsCog(commands.Cog, name="House Points"):
                 await ctx.send(embed=embed)
                 return
             title = f"House Points Totals for {date}"
+            embed_url = house_points_utils.get_points_tally_tab_url(self.spreadsheet, 'Past Points')
         # Store all values in a table
         table = text_to_table.TextToTable(['House', 'Points'], [[house, points[i]] for i, house in enumerate(house_points_constants.HOUSES)], None, 14, 9).tableize()
         embed = discord.Embed(title=title,
                               description=f"```{table}```",
-                              url=self.spreadsheet.url,
+                              url=embed_url,
                               color=house_points_utils.get_winner_embed_color([int(pts) for pts in points]))
         await ctx.send(embed=embed)
 
@@ -76,7 +78,7 @@ class HousePointsCog(commands.Cog, name="House Points"):
         # Last 2 args are for table size
         table = text_to_table.TextToTable(['Activity', 'G', 'H', 'R', 'S'], activity_points, ['Total'] + total_points, 17, 5).tableize()
         embed = discord.Embed(title=title,
-                              url=self.spreadsheet.url,
+                              url=house_points_utils.get_points_tally_tab_url(self.spreadsheet),
                               description=f"```{table}```",
                               color=house_points_utils.get_winner_embed_color([int(pts) for pts in total_points]))
         await ctx.send(embed=embed)
