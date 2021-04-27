@@ -2,7 +2,8 @@ import os
 import discord
 from discord.ext import commands
 from utils import discord_utils, google_utils
-from modules.house_points import house_points_constants, house_points_utils, text_to_table
+from modules.house_points import house_points_constants, house_points_utils
+from table2ascii import table2ascii, Alignment
 from datetime import datetime
 
 
@@ -51,8 +52,12 @@ class HousePointsCog(commands.Cog, name="House Points"):
                 return
             title = f"House Points Totals for {date}"
             embed_url = house_points_utils.get_points_tally_tab_url(self.spreadsheet, 'Past Points')
-        # Store all values in a table
-        table = text_to_table.TextToTable(['House', 'Points'], [[house, points[i]] for i, house in enumerate(house_points_constants.HOUSES)], None, 14, 9).tableize()
+        # Convert to a table
+        table = table2ascii(header=['House', 'Points'],
+                            body=[[house, points[i]] for i, house in enumerate(house_points_constants.HOUSES)],
+                            footer=None,
+                            first_col_heading=True,
+                            alignments=[Alignment.LEFT, Alignment.RIGHT])
         embed = discord.Embed(title=title,
                               description=f"```{table}```",
                               url=embed_url,
@@ -75,8 +80,11 @@ class HousePointsCog(commands.Cog, name="House Points"):
         total_points = [pts[0] for pts in points[0]]
         activity_points = [[activity] +  [pts[0] for pts in points[i+1]] for i, activity in enumerate(house_points_constants.ACTIVITIES)]
         # Convert to a table
-        # Last 2 args are for table size
-        table = text_to_table.TextToTable(['Activity', 'G', 'H', 'R', 'S'], activity_points, ['Total'] + total_points, 17, 5).tableize()
+        table = table2ascii(header=['Activity', 'G', 'H', 'R', 'S'],
+                            body=activity_points,
+                            footer=['Total'] + total_points,
+                            first_col_heading=True,
+                            alignments=[Alignment.LEFT] + [Alignment.RIGHT]*4)
         embed = discord.Embed(title=title,
                               url=house_points_utils.get_points_tally_tab_url(self.spreadsheet),
                               description=f"```{table}```",
