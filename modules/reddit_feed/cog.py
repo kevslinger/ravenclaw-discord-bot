@@ -1,30 +1,26 @@
 import datetime
 import time
 import constants
-
 import discord
 from discord.ext.tasks import loop
 from discord.ext import commands
-
-import asyncpraw
 from asyncprawcore.exceptions import AsyncPrawcoreException
-import asyncpraw.exceptions
-
 from modules.reddit_feed.reddit_post import RedditPost
+from utils import reddit_utils
 import os
 
 # Reddit feed settings
 CHECK_INTERVAL = 5  # seconds to wait before checking again
 SUBMISSION_LIMIT = 5  # number of submissions to check
 
-# initialize AsyncPraw reddit api
-reddit = asyncpraw.Reddit(
-	client_id=os.getenv("REDDIT_CLIENT_ID"),
-	client_secret=os.getenv("REDDIT_CLIENT_SECRET"),
-	password=os.getenv("REDDIT_PASSWORD"),
-	user_agent=f"{os.getenv('REDDIT_USERNAME')} Bot",
-	username=os.getenv("REDDIT_USERNAME"),
-)
+
+def is_in_guild(guild_id):
+	"""Check that command is in a guild"""
+
+	async def predicate(ctx):
+		return ctx.guild and ctx.guild.id == guild_id
+
+	return commands.check(predicate)
 
 
 class RedditFeedCog(commands.Cog, name="Reddit Feed"):
@@ -32,20 +28,13 @@ class RedditFeedCog(commands.Cog, name="Reddit Feed"):
 
 	def __init__(self, bot):
 		self.bot = bot
+		self.reddit = reddit_utils.get_reddit_client()
 
 	@commands.Cog.listener()
 	async def on_ready(self):
 		"""When discord is connected"""
 		# Start Reddit loop
 		self.reddit_feed.start()
-
-	def is_in_guild(guild_id):
-		"""check that command is in a guild"""
-
-		async def predicate(ctx):
-			return ctx.guild and ctx.guild.id == guild_id
-
-		return commands.check(predicate)
 
 	@commands.command(name="resend")
 	@commands.has_permissions(administrator=True)
@@ -58,17 +47,25 @@ class RedditFeedCog(commands.Cog, name="Reddit Feed"):
 		# respond to command
 		await ctx.send("Resending last announcement!")
 		# check for last submission in subreddit
-		subreddit = await reddit.subreddit(os.getenv("RAVENCLAW_SUBREDDIT"))
+		subreddit = await self.reddit.subreddit(os.getenv("RAVENCLAW_SUBREDDIT"))
 		async for submission in subreddit.new(limit=1):
 			# process submission
-			await RedditPost(self.bot, submission).process_post()
+			subreddit, title, author, message = RedditPost(self.bot, submission).process_post()
+			embed = discord.Embed(title=f"New Post in r/{subreddit}!",
+								  description=f"By u/{author}",
+								  color=constants.EMBED_COLOR)
+			embed.add_field(name=title,
+							value=message,
+							inline=False)
+			channel = self.bot.get_channel(int(os.getenv("ANNOUNCEMENTS_CHANNEL_ID")))
+			await channel.send(embed=embed)
 
 	@loop(seconds=CHECK_INTERVAL)
 	async def reddit_feed(self):
 		"""loop every few seconds to check for new submissions"""
 		try:
 			# check for new submission in subreddit
-			subreddit = await reddit.subreddit(os.getenv("RAVENCLAW_SUBREDDIT"))
+			subreddit = await self.reddit.subreddit(os.getenv("RAVENCLAW_SUBREDDIT"))
 			async for submission in subreddit.new(limit=SUBMISSION_LIMIT):
 				# check if the post has been seen before
 				if not submission.saved:
