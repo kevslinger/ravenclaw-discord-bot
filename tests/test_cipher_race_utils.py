@@ -1,5 +1,5 @@
 import pytest
-from modules.code import code_utils, code_constants
+from modules.cipher_race import cipher_race_utils, cipher_race_constants
 
 
 @pytest.mark.parametrize("answer,answer_list,correct",
@@ -14,7 +14,7 @@ from modules.code import code_utils, code_constants
                           ("conditioning", ["strengthen", "conditioning"], code_constants.CORRECT)
                           ])
 def test_get_answer_result(answer, answer_list, correct):
-    result = code_utils.get_answer_result(answer, answer_list)
+    result = cipher_race_utils.get_answer_result(answer, answer_list)
     assert result == correct
 
 
@@ -31,4 +31,4 @@ def test_get_answer_result(answer, answer_list, correct):
                           (10, 70),
                           (11, 80)])
 def test_compute_level_time(level, time):
-    assert code_utils.compute_level_time(level) == time
+    assert cipher_race_utils.compute_level_time(level) == time
