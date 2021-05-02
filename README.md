@@ -4,7 +4,7 @@
 
 ## Modules
  
-- [Code](./modules/code) a fun cipher race!
+- [Cipher Race](./modules/cipher_race) a fun cipher race!
 - [Error Logging](./modules/error_logging) for getting error logs
 - [House Points](./modules/house_points) for getting house points info  
 - [Lookup](./modules/lookup) for Searching the internet

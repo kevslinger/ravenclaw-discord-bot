@@ -4,7 +4,7 @@ import discord
 from utils import discord_utils
 from modules.help import help_constants
 from modules.lookup import lookup_constants
-from modules.code import code_constants
+from modules.cipher_race import cipher_race_constants
 
 
 class HelpCog(commands.Cog):
@@ -61,17 +61,17 @@ def cipher_race_help():
                           color=constants.EMBED_COLOR)
     embed.add_field(name=f"{constants.BOT_PREFIX}startrace",
                     value=f"Starts a race!\n"
-                          f"Optional: choose a wordlist (from {', '.join(code_constants.SHEETS)})\n"
-                          f"e.g. {constants.BOT_PREFIX}startrace {code_constants.COMMON}",
+                          f"Optional: choose a wordlist (from {', '.join(cipher_race_constants.SHEETS)})\n"
+                          f"e.g. {constants.BOT_PREFIX}startrace {cipher_race_constants.COMMON}",
                     inline=False)
     embed.add_field(name=f"{constants.BOT_PREFIX}answer <your_answer>",
                     value=f"Answer any of the codes during a race! If you are correct, the bot will react with "
-                          f"a {code_constants.CORRECT_EMOJI}. Otherwise, it will react with a {code_constants.INCORRECT_EMOJI}",
+                          f"a {cipher_race_constants.CORRECT_EMOJI}. Otherwise, it will react with a {cipher_race_constants.INCORRECT_EMOJI}",
                     inline=False)
     embed.add_field(name=f"{constants.BOT_PREFIX}practice",
                     value=f"Get a randomly selected word and cipher to decode at your own pace!\n"
-                          f"Optional: Choose a cipher from {', '.join(code_constants.CIPHERS)}\n"
-                          f"e.g. {constants.BOT_PREFIX}practice {code_constants.PIGPEN}\n"
+                          f"Optional: Choose a cipher from {', '.join(cipher_race_constants.CIPHERS)}\n"
+                          f"e.g. {constants.BOT_PREFIX}practice {cipher_race_constants.PIGPEN}\n"
                           f"Note: the bot will NOT check your answer. When you've solved, check it yourself by "
                           f"uncovering the spoiler text next to the image!",
                     inline=False)

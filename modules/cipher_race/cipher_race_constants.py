@@ -9,7 +9,7 @@ NUM_LEVELS = 5
 # Google Sheet
 ID = "ID"
 URL = "URL"
-CODE = "code"
+CODE = "cipher_race"
 ANSWER = "Answer"
 COLUMNS = [ID, URL, CODE, ANSWER]
 # Answer responses
@@ -28,6 +28,9 @@ BRAILLE = 'braille'
 CIPHERS = [PIGPEN, SEMAPHORE, MORSE, BRAILLE]
 # Wordlists
 HP = 'hp'
+HP_SHEET_TAB_NAME = 'HP'
 COMMON = 'common'
+COMMON_SHEET_TAB_NAME = 'Common'
 CHALLENGE = 'challenge'
+CHALLENGE_SHEET_TAB_NAME = 'Challenge'
 SHEETS = [HP, COMMON, CHALLENGE]

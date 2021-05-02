@@ -18,8 +18,6 @@ def create_gspread_client():
             json_creds[param] = os.getenv(param).replace('\"', '').replace('\\n', '\n')
         with open('client_secret.json', 'w') as f:
             json.dump(json_creds, f)
-    #creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scopes)
-    #return gspread.authorize(creds)
     return gspread.service_account('client_secret.json', scopes)
 
 
