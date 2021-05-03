@@ -38,6 +38,10 @@ class HelpCog(commands.Cog):
                             value=f"Search the interwebs (google)!\n"
                                   f"Read more on the [GitHub README]({help_constants.LOOKUP_README})",
                             inline=False)
+            embed.add_field(name=help_constants.QUIBBLER,
+                            value=f"Get general info about our quarterly magazine!\n"
+                                  f"Read more on the [GitHub README]({help_constants.QUIBBLER_README})",
+                            inline=False)
             embed.add_field(name=help_constants.TIME,
                             value=f"Current time anywhere in the world!\n"
                                   f"Read more on the [GitHub README]({help_constants.TIME_README})",
@@ -117,6 +121,18 @@ def more_help(embed, readme_link):
                            inline=False)
 
 
+def quibbler_help():
+    embed = discord.Embed(title=f"{help_constants.QUIBBLER} {help_constants.HELP}",
+                          url=help_constants.QUIBBLER_README,
+                          color=constants.EMBED_COLOR)
+    embed.add_field(name=f"{constants.BOT_PREFIX}quibbler",
+                    value=f"Get links to the Quibbler's Issuu page, submission form, subreddit, "
+                          f"and prompts for inspiration!",
+                    inline=False)
+    embed = more_help(embed, help_constants.QUIBBLER_README)
+    return embed
+
+
 def time_help():
     embed = discord.Embed(title=f"{help_constants.TIME} {help_constants.HELP}",
                           url=help_constants.TIME_README,
@@ -133,6 +149,7 @@ MODULE_TO_HELP = {
     help_constants.CIPHER_RACE.lower() : cipher_race_help,
     help_constants.HOUSE_POINTS.lower(): house_points_help,
     help_constants.LOOKUP.lower(): lookup_help,
+    help_constants.QUIBBLER.lower(): quibbler_help,
     help_constants.TIME.lower(): time_help
 }
 

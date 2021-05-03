@@ -5,6 +5,7 @@ from utils import discord_utils, google_utils
 from modules.house_points import house_points_constants, house_points_utils
 from table2ascii import table2ascii, Alignment
 from datetime import datetime
+import constants
 
 
 class HousePointsCog(commands.Cog, name="House Points"):
@@ -64,7 +65,7 @@ class HousePointsCog(commands.Cog, name="House Points"):
                               color=house_points_utils.get_winner_embed_color([int(pts) for pts in points]))
         await ctx.send(embed=embed)
 
-    @commands.command(name="housepointsbreakdown", aliases=['hpbd','happybirthday'])
+    @commands.command(name="housepointsbreakdown", aliases=['hpbd'])
     async def housepointsbreakdown(self, ctx):
         """
         Get the breakdown of current month's points by activity
@@ -91,6 +92,13 @@ class HousePointsCog(commands.Cog, name="House Points"):
                               color=house_points_utils.get_winner_embed_color([int(pts) for pts in total_points]))
         await ctx.send(embed=embed)
 
+    @commands.command(name="happybirthday")
+    async def happybirthday(self, ctx):
+        """TODO: remove"""
+        embed = discord.Embed(title="Were you looking for ~hpbd?",
+                              description="Soni isn't funny -_-",
+                              color=constants.EMBED_COLOR)
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
