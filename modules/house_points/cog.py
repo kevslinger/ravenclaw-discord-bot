@@ -64,7 +64,7 @@ class HousePointsCog(commands.Cog, name="House Points"):
                               color=house_points_utils.get_winner_embed_color([int(pts) for pts in points]))
         await ctx.send(embed=embed)
 
-    @commands.command(name="housepointsbreakdown", aliases=['hpbd'])
+    @commands.command(name="housepointsbreakdown", aliases=['hpbd','happybirthday'])
     async def housepointsbreakdown(self, ctx):
         """
         Get the breakdown of current month's points by activity
