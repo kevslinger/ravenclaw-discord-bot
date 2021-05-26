@@ -1,7 +1,7 @@
 import googlesearch
 from discord.ext import commands
 from utils import discord_utils
-from modules.lookup import lookup_constants
+from modules.lookup import lookup_constants, lookup_utils
 
 #######
 # TODO: DELETE wikipedia, google, and dcode now that search works
@@ -62,6 +62,32 @@ class LookupCog(commands.Cog, name="Lookup"):
             embed.add_field(name=f"Search failed!", value=f"Sorry! We weren't able to find a {target_site.capitalize()}"
                                                           f"link for {original_query}. However, here are the top 10 hits on Google:\n"
                                                           f"{chr(10).join(results)}")
+        await ctx.send(embed=embed)
+
+    @commands.command(name="google")
+    async def google(self, ctx, query: str):
+        print("Received google")
+        results = lookup_utils.search_query(query)
+
+        embed = discord_utils.create_embed()
+        embed.add_field(name=f"Google Result for {query}",
+                        value=f"{chr(10).join(results)}")
+        await ctx.send(embed=embed)
+
+    @commands.command(name="wikipedia", aliases=["wiki"])
+    async def wikipedia(self, ctx, query: str):
+        print("Received wikipedia")
+        results = lookup_utils.search_query(query, target_site=lookup_constants.WIKI)
+
+        embed = discord_utils.create_embed()
+        if len(results) > 1:
+            embed.add_field(name=f"Search failed!",
+                            value=f"Sorry! We weren't able to find a {target_site.capitalize()}"
+                                  f"link for {query}. However, here are the top 10 hits on Google:\n"
+                                  f"{chr(10).join(results)}")
+        else:
+            embed.add_field(name=f"Wikipedia Result for {query}",
+                            value=f"{chr(10).join(results)}")
         await ctx.send(embed=embed)
 
 

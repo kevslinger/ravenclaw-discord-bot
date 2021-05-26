@@ -57,7 +57,7 @@ class RedditFeedCog(commands.Cog, name="Reddit Feed"):
 			embed.add_field(name=title,
 							value=message,
 							inline=False)
-			channel = self.bot.get_channel(int(os.getenv("ANNOUNCEMENTS_CHANNEL_ID")))
+			channel = self.bot.get_channel(int(os.getenv("REDDIT_ANNOUNCEMENTS_CHANNEL_ID")))
 			await channel.send(embed=embed)
 
 	@loop(seconds=CHECK_INTERVAL)
@@ -79,7 +79,7 @@ class RedditFeedCog(commands.Cog, name="Reddit Feed"):
 					embed.add_field(name=title,
 									value=message,
 									inline=False)
-					channel = self.bot.get_channel(int(os.getenv("ANNOUNCEMENTS_CHANNEL_ID")))
+					channel = self.bot.get_channel(int(os.getenv("REDDIT_ANNOUNCEMENTS_CHANNEL_ID")))
 					await channel.send(embed=embed)
 		except AsyncPrawcoreException as err:
 			print(f"EXCEPTION: AsyncPrawcoreException. {err}")
