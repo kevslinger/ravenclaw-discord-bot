@@ -65,28 +65,28 @@ class LookupCog(commands.Cog, name="Lookup"):
         await ctx.send(embed=embed)
 
     @commands.command(name="google")
-    async def google(self, ctx, query: str):
+    async def google(self, ctx, *args):
         print("Received google")
-        results = lookup_utils.search_query(query)
+        results = lookup_utils.search_query(' '.join(args))
 
         embed = discord_utils.create_embed()
-        embed.add_field(name=f"Google Result for {query}",
+        embed.add_field(name=f"Google Result for {' '.join(args)}",
                         value=f"{chr(10).join(results)}")
         await ctx.send(embed=embed)
 
     @commands.command(name="wikipedia", aliases=["wiki"])
-    async def wikipedia(self, ctx, query: str):
+    async def wikipedia(self, ctx, *args):
         print("Received wikipedia")
-        results = lookup_utils.search_query(query, target_site=lookup_constants.WIKI)
+        results = lookup_utils.search_query(' '.join(args), target_site=lookup_constants.WIKI)
 
         embed = discord_utils.create_embed()
         if len(results) > 1:
             embed.add_field(name=f"Search failed!",
                             value=f"Sorry! We weren't able to find a {target_site.capitalize()}"
-                                  f"link for {query}. However, here are the top 10 hits on Google:\n"
+                                  f"link for {' '.join(args)}. However, here are the top 10 hits on Google:\n"
                                   f"{chr(10).join(results)}")
         else:
-            embed.add_field(name=f"Wikipedia Result for {query}",
+            embed.add_field(name=f"Wikipedia Result for {' '.join(args)}",
                             value=f"{chr(10).join(results)}")
         await ctx.send(embed=embed)
 
