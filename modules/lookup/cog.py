@@ -80,7 +80,7 @@ class LookupCog(commands.Cog, name="Lookup"):
         embed = discord_utils.create_embed()
         if len(results) > 1:
             embed.add_field(name=f"Search failed!",
-                            value=f"Sorry! We weren't able to find a {target_site.capitalize()}"
+                            value=f"Sorry! We weren't able to find a Wikipedia"
                                   f"link for {' '.join(args)}. However, here are the top 10 hits on Google:\n"
                                   f"{chr(10).join(results)}")
         else:
