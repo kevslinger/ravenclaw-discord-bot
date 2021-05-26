@@ -3,9 +3,7 @@ from discord.ext import commands
 from utils import discord_utils
 from modules.lookup import lookup_constants, lookup_utils
 
-#######
-# TODO: DELETE wikipedia, google, and dcode now that search works
-# Actually I think we should keep google as a default so they don't have to specify google everytime
+
 class LookupCog(commands.Cog, name="Lookup"):
     """Performs a Google Search (for ciphers etc)"""
 
