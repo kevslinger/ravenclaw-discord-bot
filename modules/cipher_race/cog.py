@@ -2,7 +2,6 @@ from dotenv.main import load_dotenv
 import discord
 from discord.ext import commands
 from discord.ext.tasks import loop
-import asyncio
 import os
 from utils import google_utils, discord_utils
 from modules.cipher_race import cipher_race_constants, cipher_race_utils
@@ -58,7 +57,7 @@ class CipherRaceCog(commands.Cog, name="Cipher Race"):
         """When discord is connected"""
         self.reload_sheet.start()
             
-    @commands.command(name='startrace', aliases=['StarTrace', 'StartRace'])
+    @commands.command(name='startrace')
     async def startrace(self, ctx, sheet: str = cipher_race_constants.HP):
         """
         Start your race! You will have 60 seconds per level to solve the codes
@@ -225,11 +224,7 @@ class CipherRaceCog(commands.Cog, name="Cipher Race"):
         Timer(cipher_race_constants.BREAK_TIME, self.start_new_level, callback_args=(ctx, channel, embeds), callback_async=True)
 
     @commands.command(name='reload')
-    @commands.has_any_role(
-        constants.RAVENCLAW_STATSLINGER_ROLE_ID,
-        constants.SONI_SERVER_TESTER_ROLE,
-        constants.KEV_SERVER_TESTER_ROLE
-    )
+    @commands.is_owner()
     async def reload(self, ctx):
         """
         Reload the Google Sheet so we can update our codes instantly.
@@ -256,12 +251,8 @@ class CipherRaceCog(commands.Cog, name="Cipher Race"):
                         inline=False)
         await ctx.send(embed=embed)
 
+    @commands.is_owner()
     @commands.command(name='reset')
-    @commands.has_any_role(
-        constants.RAVENCLAW_STATSLINGER_ROLE_ID,
-        constants.SONI_SERVER_TESTER_ROLE,
-        constants.KEV_SERVER_TESTER_ROLE
-    )
     async def reset(self, ctx):
         """
         Admin Command.
@@ -272,18 +263,9 @@ class CipherRaceCog(commands.Cog, name="Cipher Race"):
         self.current_races = {}
         embed = discord_utils.create_embed()
         embed.add_field(name="Success",
-                        value="Bot has been reset. I feel brand new!",
+                        value="Bot has been reset, and all races have been forcibly ended. I feel brand new!",
                         inline=False)
         await ctx.send(embed=embed)
-
-
-    # Function to clean the bot's cipher_race so it can start a new one.
-    # UPDATE: Don't reset used cipher_race IDs. We have enough. Only do that on a forced ~reset
-    def reset_code(self, team):
-        self.current_level[team] = 1
-        self.current_answers[team] = []
-        self.currently_puzzling[team] = False
-
 
     # Reload the Google sheet every hour so we can dynamically add
     # Without needing to restart the bot
@@ -336,7 +318,8 @@ class CipherRaceCog(commands.Cog, name="Cipher Race"):
                         inline=False)
         embed.add_field(name="Answers",
                         value=f"The answers to the remaining codes were:\n"
-                              f"{chr(10).join(self.current_races[channel][cipher_race_constants.ANSWERS])}", inline=False)
+                              f"{chr(10).join(self.current_races[channel][cipher_race_constants.ANSWERS])}",
+                        inline=False)
         await ctx.send(embed=embed)
         self.current_races.pop(channel)
         return
