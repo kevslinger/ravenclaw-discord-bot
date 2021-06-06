@@ -1,4 +1,5 @@
 
+QUOTE_PROMPT = "Identify the BOOK and SPEAKER of the following quote"
 THEME = "THEME"
 CATEGORY = "CATEGORY"
 QUESTION = "QUESTION"

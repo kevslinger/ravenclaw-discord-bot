@@ -14,7 +14,6 @@ class DuelingCog(commands.Cog, name="Dueling"):
     def __init__(self, bot):
         self.bot = bot
         self.gspread_client = google_utils.create_gspread_client()
-        print(os.getenv("DUELING_SHEET_KEY"))
         self.sheet = self.gspread_client.open_by_key(os.getenv("DUELING_SHEET_KEY"))
         self.quotes_tab = self.sheet.worksheet("QuotesDatabase")
         self.quarter_tab = self.sheet.worksheet("QuarterQuestions")
@@ -30,6 +29,7 @@ class DuelingCog(commands.Cog, name="Dueling"):
                                           f"you want!\n\n"
                                           f"**Multiple Choice**: `{ctx.prefix}duelingmc`\n"
                                           f"**Name the BOOK and SPEAKER**: `{ctx.prefix}duelingquote`\n"
+                                          f"**Random Question**: `{ctx.prefix}duelingrandom`\n"
                                           f"**Question from specific CATEGORY**:`{ctx.prefix}duelingcat <category>` "
                                           f"(use `{ctx.prefix}duelingcat` for available categories)\n"
                                           f"**Question from specific THEME**:`{ctx.prefix}duelingtheme <theme>` "
@@ -48,11 +48,11 @@ class DuelingCog(commands.Cog, name="Dueling"):
         embed = discord_utils.create_embed()
         # Cut off header
         quarter_questions = self.quarter_tab.get_all_values()[1:]
-        question = quarter_questions[np.random.choice(range(len(quarter_questions)))]
+        question = quarter_questions[np.random.randint(len(quarter_questions))]
         # TODO: Hacky way of saying there are not multiple options
         i = 0
         while question[-1] == "":
-            question = quarter_questions[np.random.choice(range(len(quarter_questions)))]
+            question = quarter_questions[np.random.randint(len(quarter_questions))]
             i += 1
             if i >= 100:
                 embed.add_field(name=f"{constants.FAILED}!",
@@ -86,9 +86,9 @@ class DuelingCog(commands.Cog, name="Dueling"):
         print(f"Received duelingquote from {ctx.channel.name}")
         # Cut off header
         quote_questions = self.quotes_tab.get_all_values()[1:]
-        question = quote_questions[np.random.choice(range(len(quote_questions)))]
+        question = quote_questions[np.random.randint(len(quote_questions))]
         embed = discord_utils.create_embed()
-        embed.add_field(name="Identify the BOOK and SPEAKER of the following quote",
+        embed.add_field(name=dueling_constants.QUOTE_PROMPT,
                         value=question[0],
                         inline=False)
         embed.add_field(name=dueling_constants.ANSWER,
@@ -98,6 +98,44 @@ class DuelingCog(commands.Cog, name="Dueling"):
                         value=dueling_utils.format_spoiler_answer(question[2], filler=10),
                         inline=False)
         await ctx.send(embed=embed)
+
+    @commands.command(name="duelingrandom")
+    async def duelingrandom(self, ctx):
+        """Give a random question"""
+        print(f"Received duelingrandom from {ctx.channel.name}")
+
+        # Cut off headers
+        possible_questions = self.quarter_tab.get_all_values()[1:] + self.quotes_tab.get_all_values()[1:]
+        question = possible_questions[np.random.randint(len(possible_questions))]
+        embed = discord_utils.create_embed()
+        # TODO: hardcoded hacked
+        if len(question) <= 3:
+            # name the quote
+            embed.add_field(name=dueling_constants.QUOTE_PROMPT,
+                            value=question[0],
+                            inline=False)
+            embed.add_field(name=dueling_constants.ANSWER,
+                            value=dueling_utils.format_spoiler_answer(question[1]),
+                            inline=False)
+            embed.add_field(name="HINT (Book)",
+                            value=dueling_utils.format_spoiler_answer(question[2], filler=10),
+                            inline=False)
+        else:
+            # MC question (do not give MC)
+            embed.add_field(name=dueling_constants.THEME,
+                            value=question[0],
+                            )  # inline=False)
+            embed.add_field(name=dueling_constants.CATEGORY,
+                            value=question[1],
+                            )  # inline=False)
+            embed.add_field(name=dueling_constants.QUESTION,
+                            value=question[2],
+                            inline=False)
+            embed.add_field(name=dueling_constants.ANSWER,
+                            value=dueling_utils.format_spoiler_answer(question[3]),
+                            inline=False)
+        await ctx.send(embed=embed)
+
 
     def quarter_tab_get_column(self, column: string):
         """Get all the Unique entries from one column on the QuarterQuestions sheet"""
