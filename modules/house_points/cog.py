@@ -27,7 +27,7 @@ class HousePointsCog(commands.Cog, name="House Points"):
         """
         Get the Current House Points!
         args (Optional): Month and Year to find historical house points (e.g. April 2015)"""
-        print("Received housepoints")
+        print(f"Received housepoints from {ctx.channel.name}")
         # If the user does not supply a month/date pair or they supplied one argument and it's the current month, or
         # they supplied both arguments and it is the *current* month/year
         if (len(args) < 1) or (len(args) == 1 and args[0] == datetime.now().strftime('%B')) or (' '.join(args[:2]) == datetime.now().strftime('%B %Y')):
@@ -87,7 +87,7 @@ class HousePointsCog(commands.Cog, name="House Points"):
         """
         Get the breakdown of current month's points by activity
         """
-        print("Received housepointsbreakdown")
+        print(f"Received housepointsbreakdown from {ctx.channel.name}")
         # TODO: Get Eastern Time?
         title = f"House Points Breakdown as of {datetime.now().strftime('%B %d')}"
 
@@ -113,7 +113,7 @@ class HousePointsCog(commands.Cog, name="House Points"):
     @commands.command(name="housecup")
     async def housecup(self, ctx, year: str = None):
         """Command to get the yearly house cup standings"""
-        print("Received housecup")
+        print(f"Received housecup from {ctx.channel.name}")
         if year is None:
             year = str(datetime.now().year)
             title = f"House Cup Standings as of {datetime.now().strftime('%B %d')}"
