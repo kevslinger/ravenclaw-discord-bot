@@ -5,7 +5,7 @@ import os
 import string
 import numpy as np
 from utils import google_utils, discord_utils
-from modules.dueling import dueling_utils
+from modules.dueling import dueling_utils, dueling_constants
 import constants
 
 
@@ -14,7 +14,8 @@ class DuelingCog(commands.Cog, name="Dueling"):
     def __init__(self, bot):
         self.bot = bot
         self.gspread_client = google_utils.create_gspread_client()
-        self.sheet = self.gspread_client.open_by_key("1CeilQ3n4szkZunYCOO2T0HNP89PlxOrknIQAgveuXfw")
+        print(os.getenv("DUELING_SHEET_KEY"))
+        self.sheet = self.gspread_client.open_by_key(os.getenv("DUELING_SHEET_KEY"))
         self.quotes_tab = self.sheet.worksheet("QuotesDatabase")
         self.quarter_tab = self.sheet.worksheet("QuarterQuestions")
 
@@ -25,17 +26,18 @@ class DuelingCog(commands.Cog, name="Dueling"):
         embed = discord.Embed(title="Welcome to Discord Dueling!",
                               color=constants.EMBED_COLOR,
                               description=f"Get your Harry Potter trivia fill during no-points month right here!\n"
-                                          f"We have several commands to give you full control over what kind of game "
-                                          f"you want to play!\n\n"
+                                          f"We have several commands to give you full control over what kind of question "
+                                          f"you want!\n\n"
                                           f"**Multiple Choice**: `{ctx.prefix}duelingmc`\n"
                                           f"**Name the BOOK and SPEAKER**: `{ctx.prefix}duelingquote`\n"
                                           f"**Question from specific CATEGORY**:`{ctx.prefix}duelingcat <category>` "
                                           f"(use `{ctx.prefix}duelingcat` for available categories)\n"
                                           f"**Question from specific THEME**:`{ctx.prefix}duelingtheme <theme>` "
                                           f"(use `{ctx.prefix}duelingtheme` for available themes)\n\n"
-                                          f"For now, I will always include the answer at the end in spoiler text. Feel "
-                                          f"free to put your answer in here, but be sure to cover it with spoiler text! "
-                                          f"To use spoiler text, surround your answer with \|\| e.g. \|\|answer\|\|"
+                                          f"For now, I will always include the answer at the end in spoiler text so you "
+                                          f"can check your answer. Feel free to put your answer in here, but be sure to "
+                                          f"cover it with spoiler text! To use spoiler text, surround your answer "
+                                          f"with \|\| e.g. \|\|answer\|\|"
                               )
         await ctx.send(embed=embed)
 
@@ -50,7 +52,6 @@ class DuelingCog(commands.Cog, name="Dueling"):
         # TODO: Hacky way of saying there are not multiple options
         i = 0
         while question[-1] == "":
-            print(question)
             question = quarter_questions[np.random.choice(range(len(quarter_questions)))]
             i += 1
             if i >= 100:
@@ -61,20 +62,20 @@ class DuelingCog(commands.Cog, name="Dueling"):
 
         multiple_choice = [question[3]] + question[5:]
         np.random.shuffle(multiple_choice)
-        embed.add_field(name="THEME",
+        embed.add_field(name=dueling_constants.THEME,
                         value=question[0],
                         )#inline=False)
-        embed.add_field(name="CATEGORY",
+        embed.add_field(name=dueling_constants.CATEGORY,
                         value=question[1],
                         )#inline=False)
-        embed.add_field(name="QUESTION",
+        embed.add_field(name=dueling_constants.QUESTION,
                         value=question[2],
                         inline=False)
-        embed.add_field(name="CHOICES",
+        embed.add_field(name=dueling_constants.CHOICES,
                         # TODO: woof that hardcoded formatting
                         # Some of the answers are ints
                         value="\n".join([f"{letter}.) {str(answer)}" for letter, answer in zip(string.ascii_uppercase, multiple_choice)]))
-        embed.add_field(name="ANSWER",
+        embed.add_field(name=dueling_constants.ANSWER,
                         value=dueling_utils.format_spoiler_answer(question[3], filler=20),
                         inline=False)
         await ctx.send(embed=embed)
@@ -90,7 +91,7 @@ class DuelingCog(commands.Cog, name="Dueling"):
         embed.add_field(name="Identify the BOOK and SPEAKER of the following quote",
                         value=question[0],
                         inline=False)
-        embed.add_field(name="ANSWER",
+        embed.add_field(name=dueling_constants.ANSWER,
                         value=dueling_utils.format_spoiler_answer(question[1]),
                         inline=False)
         embed.add_field(name="HINT (Book)",
@@ -120,23 +121,23 @@ class DuelingCog(commands.Cog, name="Dueling"):
         if len(args) < 1 or user_cat not in categories:
             embed = discord_utils.create_embed()
             embed.add_field(name="Available Categories",
-                            value=", ".join(categories))
+                            value="\n".join(categories))
             await ctx.send(embed=embed)
             return
         # Find all questions of the given category
         # TODO: Hardcoded
         question = self.quarter_tab_get_question(user_cat, 2)
         embed = discord_utils.create_embed()
-        embed.add_field(name="THEME",
+        embed.add_field(name=dueling_constants.THEME,
                         value=question[0],
                         )#inline=False)
-        embed.add_field(name="CATEGORY",
+        embed.add_field(name=dueling_constants.CATEGORY,
                         value=question[1],
                         )#inline=False)
-        embed.add_field(name="QUESTION",
+        embed.add_field(name=dueling_constants.QUESTION,
                         value=question[2],
                         inline=False)
-        embed.add_field(name="ANSWER",
+        embed.add_field(name=dueling_constants.ANSWER,
                         value=dueling_utils.format_spoiler_answer(question[3]),
                         inline=False)
         await ctx.send(embed=embed)
@@ -151,21 +152,21 @@ class DuelingCog(commands.Cog, name="Dueling"):
         if len(args) < 1 or user_theme not in themes:
             embed = discord_utils.create_embed()
             embed.add_field(name="Available Themes",
-                            value=", ".join(themes))
+                            value="\n".join(themes))
             await ctx.send(embed=embed)
             return
         question = self.quarter_tab_get_question(user_theme, 1)
         embed = discord_utils.create_embed()
-        embed.add_field(name="THEME",
+        embed.add_field(name=dueling_constants.THEME,
                         value=question[0],
                         )#inline=False)
-        embed.add_field(name="CATEGORY",
+        embed.add_field(name=dueling_constants.CATEGORY,
                         value=question[1],
                         )#inline=False)
-        embed.add_field(name="QUESTION",
+        embed.add_field(name=dueling_constants.QUESTION,
                         value=question[2],
                         inline=False)
-        embed.add_field(name="ANSWER",
+        embed.add_field(name=dueling_constants.ANSWER,
                         value=dueling_utils.format_spoiler_answer(question[3]),
                         inline=False)
         await ctx.send(embed=embed)
