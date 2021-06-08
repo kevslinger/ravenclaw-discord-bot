@@ -92,7 +92,7 @@ class DuelingCog(commands.Cog, name="Dueling"):
                         value=question[0],
                         inline=False)
         embed.add_field(name=dueling_constants.ANSWER,
-                        value=dueling_utils.format_spoiler_answer(question[1]),
+                        value=dueling_utils.format_spoiler_answer(question[4]),
                         inline=False)
         embed.add_field(name="HINT (Book)",
                         value=dueling_utils.format_spoiler_answer(question[2], filler=10),
@@ -109,13 +109,13 @@ class DuelingCog(commands.Cog, name="Dueling"):
         question = possible_questions[np.random.randint(len(possible_questions))]
         embed = discord_utils.create_embed()
         # TODO: hardcoded hacked
-        if len(question) <= 3:
+        if len(question) <= 5:
             # name the quote
             embed.add_field(name=dueling_constants.QUOTE_PROMPT,
                             value=question[0],
                             inline=False)
             embed.add_field(name=dueling_constants.ANSWER,
-                            value=dueling_utils.format_spoiler_answer(question[1]),
+                            value=dueling_utils.format_spoiler_answer(question[4]),
                             inline=False)
             embed.add_field(name="HINT (Book)",
                             value=dueling_utils.format_spoiler_answer(question[2], filler=10),

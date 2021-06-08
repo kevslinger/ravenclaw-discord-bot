@@ -23,5 +23,6 @@ class RedditPost:
 		"""build message from post"""
 		# get url and selftext
 		title = self.__trim_text(self.post.title)
-		url = f"https://www.reddit.com/r/{self.post.subreddit}/comments/{self.post.id}"
+		#url = f"https://www.reddit.com/r/{self.post.subreddit}/comments/{self.post.id}"
+		url = f"https://redd.it/{self.post.id}"
 		return title, url
