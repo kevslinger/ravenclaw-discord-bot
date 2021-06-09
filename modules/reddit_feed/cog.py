@@ -51,10 +51,10 @@ class RedditFeedCog(commands.Cog, name="Reddit Feed"):
 		async for submission in subreddit.new(limit=1):
 			# process submission
 			subreddit, title, author, message = RedditPost(self.bot, submission).process_post()
-			embed = discord.Embed(title=f"New Post in r/{subreddit}!",
+			embed = discord.Embed(title=title,
 								  description=f"By u/{author}",
 								  color=constants.EMBED_COLOR)
-			embed.add_field(name=title,
+			embed.add_field(name=f"New Post in r/{subreddit}!",
 							value=message,
 							inline=False)
 			channel = self.bot.get_channel(int(os.getenv("REDDIT_ANNOUNCEMENTS_CHANNEL_ID")))
@@ -73,10 +73,10 @@ class RedditFeedCog(commands.Cog, name="Reddit Feed"):
 					await submission.save()
 					# process submission
 					subreddit, title, author, message = RedditPost(self.bot, submission).process_post()
-					embed = discord.Embed(title=f"New Post in r/{subreddit}!",
+					embed = discord.Embed(title=title,
 										  description=f"By u/{author}",
 										  color=constants.EMBED_COLOR)
-					embed.add_field(name=title,
+					embed.add_field(name=f"New Post in r/{subreddit}!",
 									value=message,
 									inline=False)
 					channel = self.bot.get_channel(int(os.getenv("REDDIT_ANNOUNCEMENTS_CHANNEL_ID")))
