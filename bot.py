@@ -5,8 +5,7 @@ from discord.ext import commands
 load_dotenv(override=True)
 import constants
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
-# TODO: Remove this when we remove the welcome message
-from emoji import EMOJI_ALIAS_UNICODE_ENGLISH as EMOJIS
+
 
 def main():
     intents = discord.Intents.default()
@@ -40,7 +39,7 @@ def main():
             # Send the message to the tower
             if welcome_channel:
                 await welcome_channel.send(
-                    f"Welcome to {guild.name.capitalize()}, {after.mention}! Remember to {EMOJIS[':sparkles:']}*look inwards*{EMOJIS[':sparkles:']}")
+                    f"Welcome to {guild.name.capitalize()}, {after.mention}!")
             else:
                 print("Error, Could not find welcome channel")
 
