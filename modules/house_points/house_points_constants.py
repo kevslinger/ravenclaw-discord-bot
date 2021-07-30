@@ -8,6 +8,7 @@ RAVENCLAW = "Ravenclaw"
 SLYTHERIN = "Slytherin"
 HOUSES = [GRYFFINDOR, HUFFLEPUFF, RAVENCLAW, SLYTHERIN]
 
+HOUSE_POINTS_SHEET_KEY = "1Ulg_fTcXZFCE2_wMYULhFuCVNo09gZbWNOyTGF8WM6s"
 PAST_CUP_WINNERS_TAB_NAME = "Past House Cup Winners"
 
 # In Current Points sheet, the points are in cells B1, B2, B3, B4

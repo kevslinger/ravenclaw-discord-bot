@@ -1,7 +1,7 @@
 import geopy
 import os
 from discord.ext import commands
-from utils import discord_utils
+from utils import discord_utils, logging_utils
 from datetime import datetime
 
 class TimeCog(commands.Cog, name="Time"):
@@ -9,13 +9,12 @@ class TimeCog(commands.Cog, name="Time"):
 
     def __init__(self, bot):
         self.bot = bot
-
         self.geopy_client = geopy.geocoders.GeoNames(os.getenv("GEOPY_USERNAME"))
 
     @commands.command(name="time")
     async def time(self, ctx, *args):
         """Return the time in the specified location"""
-        print("Received time")
+        logging_utils.log_command("time", ctx.channel, ctx.author)
         # No location provided
         if len(args) < 1:
             embed = discord_utils.create_no_argument_embed("location")

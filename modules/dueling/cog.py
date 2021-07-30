@@ -1,10 +1,9 @@
 import discord
 from discord.ext import commands
-from discord.ext.tasks import loop
 import os
 import string
 import numpy as np
-from utils import google_utils, discord_utils
+from utils import google_utils, discord_utils, logging_utils
 from modules.dueling import dueling_utils, dueling_constants
 import constants
 
@@ -21,7 +20,7 @@ class DuelingCog(commands.Cog, name="Dueling"):
     @commands.command(name="dueling", aliases=["duelinghelp", "duelinginfo"])
     async def dueling(self, ctx):
         """Get info for dueling"""
-        print(f"Received dueling from {ctx.channel.name}")
+        logging_utils.log_command("dueling", ctx.channel, ctx.author)
         embed = discord.Embed(title="Welcome to Discord Dueling!",
                               color=constants.EMBED_COLOR,
                               description=f"Get your Harry Potter trivia fill during no-points month right here!\n"
@@ -44,7 +43,7 @@ class DuelingCog(commands.Cog, name="Dueling"):
     @commands.command(name="duelingmultiplechoice", aliases=["duelingmc"])
     async def duelingmultiplechoice(self, ctx):
         """Get A Multiple Choice Question"""
-        print(f"Received duelingmultiplechoice from {ctx.channel.name}")
+        logging_utils.log_command("duelingmultiplechoice", ctx.channel, ctx.author)
         embed = discord_utils.create_embed()
         # Cut off header
         quarter_questions = self.quarter_tab.get_all_values()[1:]
@@ -83,7 +82,7 @@ class DuelingCog(commands.Cog, name="Dueling"):
     @commands.command(name="duelingquote")
     async def duelingquote(self, ctx):
         """Get a quote and answer the SPEAKER and BOOK"""
-        print(f"Received duelingquote from {ctx.channel.name}")
+        logging_utils.log_command("duelingquote", ctx.channel, ctx.author)
         # Cut off header
         quote_questions = self.quotes_tab.get_all_values()[1:]
         question = quote_questions[np.random.randint(len(quote_questions))]
@@ -102,7 +101,7 @@ class DuelingCog(commands.Cog, name="Dueling"):
     @commands.command(name="duelingrandom")
     async def duelingrandom(self, ctx):
         """Give a random question"""
-        print(f"Received duelingrandom from {ctx.channel.name}")
+        logging_utils.log_command("duelingrandom", ctx.channel, ctx.author)
 
         # Cut off headers
         possible_questions = self.quarter_tab.get_all_values()[1:] + self.quotes_tab.get_all_values()[1:]
@@ -151,7 +150,7 @@ class DuelingCog(commands.Cog, name="Dueling"):
     @commands.command(name="duelingcategory", aliases=["duelingcat"])
     async def duelingcategory(self, ctx, *args):
         """Get Dueling Questions from a particular category!"""
-        print(f"Received duelingcategory from {ctx.channel.name}")
+        logging_utils.log_command("duelingcategory", ctx.channel, ctx.author)
 
         categories = self.quarter_tab_get_column("B")
         user_cat = " ".join(args)
@@ -183,7 +182,7 @@ class DuelingCog(commands.Cog, name="Dueling"):
     @commands.command(name="duelingtheme")
     async def duelingtheme(self, ctx, *args):
         """Get Dueling Questions from a particular theme!"""
-        print(f"Received duelingtheme from {ctx.channel.name}")
+        logging_utils.log_command("duelingtheme", ctx.channel, ctx.author)
         themes = self.quarter_tab_get_column("A")
         user_theme = " ".join(args)
         # No supplied theme -- give themes

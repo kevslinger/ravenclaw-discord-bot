@@ -1,6 +1,7 @@
 from discord.ext import commands
 import discord
 from modules.quibbler import quibbler_constants
+from utils import logging_utils
 import constants
 
 
@@ -18,7 +19,7 @@ class QuibblerCog(commands.Cog, name="Quibbler"):
             3.) The Issue profile page where all the quibbler's are stored
             4.) The Google Doc which has prompts for inspiration
             """
-        print(f"Received quibbler from {ctx.channel.name}")
+        logging_utils.log_command("quibbler", ctx.channel, ctx.author)
         description = f"The Quibbler is a light-hearted, quirky, facts-optional online magazine where creativity " \
                       f"and wit are prized over accuracy and factuality. We exist to put smiles on peoples' faces, " \
                       f"including our own! New editions are published quarterly on our [Issuu page]({quibbler_constants.ISSUU_LINK})" \

@@ -6,7 +6,8 @@ from discord.ext.tasks import loop
 from discord.ext import commands
 from asyncprawcore.exceptions import AsyncPrawcoreException
 from modules.reddit_feed.reddit_post import RedditPost
-from utils import reddit_utils
+from modules.reddit_feed import reddit_feed_constants
+from utils import reddit_utils, logging_utils
 import os
 
 # Reddit feed settings
@@ -38,16 +39,16 @@ class RedditFeedCog(commands.Cog, name="Reddit Feed"):
 
 	@commands.command(name="resend")
 	@commands.has_permissions(administrator=True)
-	@is_in_guild(int(os.getenv("RAVENCLAW_DISCORD_ID")))
+	@is_in_guild(constants.RAVENCLAW_DISCORD_ID)
 	async def resend(self, ctx):
 		"""Command to resend the last post again.
 		Invoked with ~resend"""
 		# log command in console
-		print("Received resend command")
+		logging_utils.log_command("resend", ctx.channel, ctx.author)
 		# respond to command
 		await ctx.send("Resending last announcement!")
 		# check for last submission in subreddit
-		subreddit = await self.reddit.subreddit(os.getenv("RAVENCLAW_SUBREDDIT"))
+		subreddit = await self.reddit.subreddit()
 		async for submission in subreddit.new(limit=1):
 			# process submission
 			subreddit, title, author, message = RedditPost(self.bot, submission).process_post()
@@ -57,7 +58,7 @@ class RedditFeedCog(commands.Cog, name="Reddit Feed"):
 			embed.add_field(name=f"New Post in r/{subreddit}!",
 							value=message,
 							inline=False)
-			channel = self.bot.get_channel(int(os.getenv("REDDIT_ANNOUNCEMENTS_CHANNEL_ID")))
+			channel = self.bot.get_channel(reddit_feed_constants.REDDIT_ANNOUNCEMENTS_CHANNEL_ID)
 			await channel.send(embed=embed)
 
 	@loop(seconds=CHECK_INTERVAL)
@@ -65,7 +66,7 @@ class RedditFeedCog(commands.Cog, name="Reddit Feed"):
 		"""loop every few seconds to check for new submissions"""
 		try:
 			# check for new submission in subreddit
-			subreddit = await self.reddit.subreddit(os.getenv("RAVENCLAW_SUBREDDIT"))
+			subreddit = await self.reddit.subreddit(reddit_feed_constants.RAVENCLAW_SUBREDDIT)
 			async for submission in subreddit.new(limit=SUBMISSION_LIMIT):
 				# check if the post has been seen before
 				if not submission.saved:
@@ -79,7 +80,7 @@ class RedditFeedCog(commands.Cog, name="Reddit Feed"):
 					embed.add_field(name=f"New Post in r/{subreddit}!",
 									value=message,
 									inline=False)
-					channel = self.bot.get_channel(int(os.getenv("REDDIT_ANNOUNCEMENTS_CHANNEL_ID")))
+					channel = self.bot.get_channel(reddit_feed_constants.REDDIT_ANNOUNCEMENTS_CHANNEL_ID)
 					await channel.send(embed=embed)
 		except AsyncPrawcoreException as err:
 			print(f"EXCEPTION: AsyncPrawcoreException. {err}")
@@ -90,7 +91,7 @@ class RedditFeedCog(commands.Cog, name="Reddit Feed"):
 		"""print startup info before reddit feed loop begins"""
 		print(f"Logged in: {str(datetime.datetime.now())[:-7]}")
 		print(f"Timezone: {time.tzname[time.localtime().tm_isdst]}")
-		print(f"Subreddit: {os.getenv('RAVENCLAW_SUBREDDIT')}")
+		print(f"Subreddit: {reddit_feed_constants.RAVENCLAW_SUBREDDIT}")
 		print(f"Checking {SUBMISSION_LIMIT} posts every {CHECK_INTERVAL} seconds")
 
 

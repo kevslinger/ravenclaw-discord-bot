@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord.ext.tasks import loop
 import os
-from utils import google_utils, discord_utils
+from utils import google_utils, discord_utils, logging_utils
 from modules.cipher_race import cipher_race_constants, cipher_race_utils
 import constants
 from aio_timers import Timer
@@ -60,6 +60,7 @@ class CipherRaceCog(commands.Cog, name="Cipher Race"):
         Start your race! You will have 60 seconds per level to solve the codes
         Usage: ~startrace <optional sheet> where sheet is {hp, challenge, common}
         """
+        logging_utils.log_command("startrace", ctx.channel, ctx.author)
         channel = ctx.channel.id
         if channel in self.current_races:
             print("startrace called from a channel that's already racing!!")
@@ -69,8 +70,6 @@ class CipherRaceCog(commands.Cog, name="Cipher Race"):
                             inline=False)
             await ctx.send(embed=embed)
             return
-        # Housekeeping
-        print(f"Received startrace from {ctx.channel.name}")
         # Create entry in current_races
         self.current_races[channel] = dict()
         self.current_races[channel][cipher_race_constants.LEVEL] = 1
@@ -95,7 +94,7 @@ class CipherRaceCog(commands.Cog, name="Cipher Race"):
         Ends the race
         Usage: ~endrace
         """
-        print(f"Received endrace from {ctx.channel.name}")
+        logging_utils.log_command("endrace", ctx.channel, ctx.author)
         channel = ctx.channel.id
         if channel not in self.current_races:
             embed = discord_utils.create_embed()
@@ -124,7 +123,7 @@ class CipherRaceCog(commands.Cog, name="Cipher Race"):
         Usage: ~practice (optional: <cipher_name> <sheet>)
         If you want to supply sheet, must supply cipher_name
         """
-        print(f"Received ~practice from {ctx.channel.name}")
+        logging_utils.log_command("practice", ctx.channel, ctx.author)
         embed = discord_utils.create_embed()
         # Supply no arguments: randomly sample
         # Supply 2 arguments: sample specific cipher_race
@@ -176,8 +175,7 @@ class CipherRaceCog(commands.Cog, name="Cipher Race"):
         Check your  answer
         Usage: ~answer <your answer>
         """
-        channel = ctx.channel.id
-        print(f"Received answer from {ctx.channel.name}")
+        logging_utils.log_command("answer", ctx.channel, ctx.author)
         
         # if the team isn't puzzling then we need to instruct them to use startpuzzle command first.
         if channel not in self.current_races:
@@ -228,6 +226,7 @@ class CipherRaceCog(commands.Cog, name="Cipher Race"):
         Reload the Google Sheet so we can update our codes instantly.
         Usage: ~reload
         """
+        logging_utils.log_command("reload", ctx.channel, ctx.author)
         self.sheet_map = {
             cipher_race_constants.HP: google_utils.get_dataframe_from_gsheet(
                 self.spreadsheet.worksheet(cipher_race_constants.HP_SHEET_TAB_NAME),
@@ -242,7 +241,6 @@ class CipherRaceCog(commands.Cog, name="Cipher Race"):
                 cipher_race_constants.COLUMNS
             )
         }
-        print(f"Reload used. Reloaded {cipher_race_constants.CODE} sheet")
         embed = discord_utils.create_embed()
         embed.add_field(name="Sheet Reloaded",
                         value="Google sheet successfully reloaded",
@@ -258,6 +256,7 @@ class CipherRaceCog(commands.Cog, name="Cipher Race"):
         Usage: ~reset
         Note: Does not reload google sheet. Use ~reload for that
         """
+        logging_utils.log_command("reset", ctx.channel, ctx.author)
         self.current_races = {}
         embed = discord_utils.create_embed()
         embed.add_field(name="Success",

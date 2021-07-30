@@ -1,7 +1,7 @@
 import os
-from dotenv.main import load_dotenv
 import discord
 from discord.ext import commands
+from dotenv.main import load_dotenv
 load_dotenv(override=True)
 import constants
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
@@ -23,26 +23,24 @@ def main():
         for guild in client.guilds:
             print(f"{client.user.name} has connected to the following guild: {guild.name} (id: {guild.id})")
 
-
     @client.event
     async def on_member_update(before, after):
         # Get the guild the member is updating their profile in (since the bot belongs to multiple guilds)
         guild = after.guild
         # If it isn't in the ravenclaw server, we don't care
-        if guild.id != int(os.getenv("RAVENCLAW_DISCORD_ID")):
+        if guild.id != constants.RAVENCLAW_DISCORD_ID:
             return
         # Make sure they did not have the ravenclaw role and are adding it now
-        if int(os.getenv("RAVENCLAW_DISCORD_ROLE_ID")) not in [role.id for role in before.roles] and \
-                int(os.getenv("RAVENCLAW_DISCORD_ROLE_ID")) in [role.id for role in after.roles]:
+        if constants.RAVENCLAW_DISCORD_ROLE_ID not in [role.id for role in before.roles] and \
+                constants.RAVENCLAW_DISCORD_ROLE_ID in [role.id for role in after.roles]:
             # Get the-tower, where we want to put the message
-            welcome_channel = guild.get_channel(int(os.getenv("RAVENCLAW_THE_TOWER_CHANNEL_ID")))
+            welcome_channel = guild.get_channel(constants.RAVENCLAW_DISCORD_THE_TOWER_ID)
             # Send the message to the tower
             if welcome_channel:
                 await welcome_channel.send(
                     f"Welcome to {guild.name.capitalize()}, {after.mention}!")
             else:
                 print("Error, Could not find welcome channel")
-
 
     client.run(DISCORD_TOKEN)
 

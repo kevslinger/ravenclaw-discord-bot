@@ -1,7 +1,7 @@
 import os
 import discord
 from discord.ext import commands
-from utils import discord_utils, google_utils
+from utils import discord_utils, google_utils, logging_utils
 from modules.house_points import house_points_constants, house_points_utils
 from table2ascii import table2ascii, Alignment
 from datetime import datetime
@@ -14,7 +14,7 @@ class HousePointsCog(commands.Cog, name="House Points"):
     def __init__(self, bot):
         self.bot = bot
         self.client = google_utils.create_gspread_client()
-        self.sheet_key = os.getenv("HOUSE_POINTS_SHEET_KEY").replace('\'', '')
+        self.sheet_key = house_points_constants.HOUSE_POINTS_SHEET_KEY
         self.spreadsheet = self.client.open_by_key(self.sheet_key)
 
         self.current_points_sheet = self.spreadsheet.worksheet("Tallies By Category")
@@ -27,7 +27,13 @@ class HousePointsCog(commands.Cog, name="House Points"):
         """
         Get the Current House Points!
         args (Optional): Month and Year to find historical house points (e.g. April 2015)"""
-        print(f"Received housepoints from {ctx.channel.name}")
+        logging_utils.log_command("housepoints", ctx.channel, ctx.author)
+        if ctx.author.id == 429476086016114706:
+            embed = discord_utils.create_embed()
+            embed.add_field(name="Calm Down",
+                            value="The house points probably haven't changed lately. It's okay, MJ")
+            await ctx.send(embed=embed)
+            return
         # If the user does not supply a month/date pair or they supplied one argument and it's the current month, or
         # they supplied both arguments and it is the *current* month/year
         if (len(args) < 1) or (len(args) == 1 and args[0] == datetime.now().strftime('%B')) or (' '.join(args[:2]) == datetime.now().strftime('%B %Y')):
@@ -87,7 +93,13 @@ class HousePointsCog(commands.Cog, name="House Points"):
         """
         Get the breakdown of current month's points by activity
         """
-        print(f"Received housepointsbreakdown from {ctx.channel.name}")
+        logging_utils.log_command("housepointsbreakdown", ctx.channel, ctx.author)
+        if ctx.author.id == 429476086016114706:
+            embed = discord_utils.create_embed()
+            embed.add_field(name="Calm Down",
+                            value="The house points probably haven't changed lately. It's okay, MJ")
+            await ctx.send(embed=embed)
+            return
         # TODO: Get Eastern Time?
         title = f"House Points Breakdown as of {datetime.now().strftime('%B %d')}"
 
@@ -113,7 +125,7 @@ class HousePointsCog(commands.Cog, name="House Points"):
     @commands.command(name="housecup")
     async def housecup(self, ctx, year: str = None):
         """Command to get the yearly house cup standings"""
-        print(f"Received housecup from {ctx.channel.name}")
+        logging_utils.log_command("housecup", ctx.channel, ctx.author)
         if year is None:
             year = str(datetime.now().year)
             title = f"House Cup Standings as of {datetime.now().strftime('%B %d')}"
