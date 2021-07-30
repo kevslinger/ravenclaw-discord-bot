@@ -28,12 +28,6 @@ class HousePointsCog(commands.Cog, name="House Points"):
         Get the Current House Points!
         args (Optional): Month and Year to find historical house points (e.g. April 2015)"""
         logging_utils.log_command("housepoints", ctx.channel, ctx.author)
-        if ctx.author.id == 429476086016114706:
-            embed = discord_utils.create_embed()
-            embed.add_field(name="Calm Down",
-                            value="The house points probably haven't changed lately. It's okay, MJ")
-            await ctx.send(embed=embed)
-            return
         # If the user does not supply a month/date pair or they supplied one argument and it's the current month, or
         # they supplied both arguments and it is the *current* month/year
         if (len(args) < 1) or (len(args) == 1 and args[0] == datetime.now().strftime('%B')) or (' '.join(args[:2]) == datetime.now().strftime('%B %Y')):
@@ -94,12 +88,6 @@ class HousePointsCog(commands.Cog, name="House Points"):
         Get the breakdown of current month's points by activity
         """
         logging_utils.log_command("housepointsbreakdown", ctx.channel, ctx.author)
-        if ctx.author.id == 429476086016114706:
-            embed = discord_utils.create_embed()
-            embed.add_field(name="Calm Down",
-                            value="The house points probably haven't changed lately. It's okay, MJ")
-            await ctx.send(embed=embed)
-            return
         # TODO: Get Eastern Time?
         title = f"House Points Breakdown as of {datetime.now().strftime('%B %d')}"
 
