@@ -137,10 +137,12 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
         logging_utils.log_command("deleteactivity", ctx.channel, ctx.author)
 
         activity = ' '.join(args)
-        result_cells = self.activity_calendar_sheet.findall(activity, in_column=activity_calendar_constants.SHEET_ACTIVITY_COLUMN)
+        result_cells = self.activity_calendar_sheet.findall(ctx.guild.name, in_column=activity_calendar_constants.SHEET_SERVER_COLUMN)
         print(result_cells)
         for cell in result_cells:
-            self.activity_calendar_sheet.delete_row(cell.row)
+            row = self.activity_calendar_sheet.row_values(cell.row)
+            if row[activity_calendar_constants.SHEET_ACTIVITY_COLUMN] == activity:
+                self.activity_calendar_sheet.delete_row(cell.row)
         embed = discord_utils.create_embed()
         embed.add_field(name="Success",
                         value=f"Deleted {len(result_cells)} instances of {activity} from the calendar.",
