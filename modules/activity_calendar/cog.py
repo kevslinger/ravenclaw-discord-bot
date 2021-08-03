@@ -1,10 +1,11 @@
 from discord.ext import commands
 from discord.ext.tasks import loop
 from modules.activity_calendar import activity_calendar_constants, activity_calendar_utils
-from utils import google_utils, discord_utils, logging_utils
+from utils import google_utils, discord_utils, logging_utils, reddit_utils
 
 import constants
 import discord
+import asyncpraw
 from datetime import datetime
 
 # TODO: filter by activity
@@ -15,6 +16,8 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
         self.bot = bot
         self.gspread_client = google_utils.create_gspread_client()
         self.activity_calendar_sheet = self.gspread_client.open_by_key(activity_calendar_constants.ACTIVITY_CALENDAR_SHEET_KEY).sheet1
+
+        self.reddit_client = reddit_utils.get_reddit_client()
 
     # Reload the google sheet every hour
     @commands.Cog.listener()
@@ -33,12 +36,10 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
         idxs_to_delete = []
         for i, cell in enumerate(server_calendar_results):
             row = self.activity_calendar_sheet.row_values(cell.row)
-            print(row)
             # Need the -1 because google sheets is 1-indexed while the lists are 0-indexed
             deadline_time = activity_calendar_utils.parse_date(row[activity_calendar_constants.SHEET_TIMESTAMP_COLUMN-1],
                                                            from_tz=row[activity_calendar_constants.SHEET_TIMESTAMP_COLUMN-1].split()[-1],
                                                            to_tz=activity_calendar_constants.UTC)
-            print(f"Activity: {row[activity_calendar_constants.SHEET_ACTIVITY_COLUMN-1]}, date: {deadline_time}, now: {utctime}")
 
             # Check that we are 24 hours away from the event.
             if deadline_time.day - utctime.day == 1 and deadline_time.hour - utctime.hour == 0:
@@ -151,6 +152,52 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
                         inline=False)
 
         await ctx.send(embed=embed)
+
+    # TODO: should this be in the house points module?
+    # TODO: PROBABLY
+    @commands.command(name="submissions")
+    async def submissions(self, ctx):
+        """Count submissions for homework and extra credit
+        ~submissions"""
+        logging_utils.log_command("submissions", ctx.channel, ctx.author)
+
+        # Get HW and EC if possible
+        result_cells = self.activity_calendar_sheet.findall(ctx.guild.name, in_column=activity_calendar_constants.SHEET_SERVER_COLUMN)
+        activity_ids = []
+        submission_counts = {}
+        for cell in result_cells:
+            row = self.activity_calendar_sheet.row_values(cell.row)
+            if "Homework:" in row[activity_calendar_constants.SHEET_ACTIVITY_COLUMN-1] or "EC:" in row[activity_calendar_constants.SHEET_ACTIVITY_COLUMN-1]:
+                # TODO: pls
+                if row[activity_calendar_constants.SHEET_LINK_COLUMN-1] not in [link[1] for link in activity_ids]:
+                    activity_ids.append((row[activity_calendar_constants.SHEET_ACTIVITY_COLUMN-1], row[activity_calendar_constants.SHEET_LINK_COLUMN-1]))
+
+        HOUSES = ["Gryffindor", "Hufflepuff", "Ravenclaw", "Slytherin"]
+        description = ""
+        for activity in activity_ids:
+            print(activity[0])
+            submission = asyncpraw.models.Submission(self.reddit_client, url=activity[1])
+            comments = await submission.comments()
+            print(comments)
+            for comment in comments:
+                print(comment.body)
+                for house in HOUSES:
+                    if "submit" in comment.body.lower() and house.lower() in comment.body.lower():
+                        if activity[0] not in submission_counts:
+                            submission_counts[activity[0]] = [0, 0, 0, 0]
+
+                        submission_counts[activity[0]][HOUSES.index(house)] = len(comment.replies)
+            if activity[0] in submission_counts:
+                description += f"\n\n[{activity[0]}]({activity[1]}):\n" \
+                               f"{chr(10).join([f'{house}: {submissions}' for house, submissions in zip(HOUSES, submission_counts[activity[0]])])}"
+        embed = discord.Embed(title="Submission counts for HW and ECs",
+                              description=description,
+                              color=constants.EMBED_COLOR)
+
+        await ctx.send(embed=embed)
+
+
+
 
 
 def setup(bot):
