@@ -190,16 +190,13 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
 
                         submission_counts[activity[0]][HOUSES.index(house)] = len(comment.replies)
             if activity[0] in submission_counts:
-                description += f"\n\n[{activity[0]}:]({activity[2]}) {activity[1]}\n" \
+                description += f"\n\n**[{activity[0]}:]({activity[2]})** {activity[1]} \n" \
                                f"{chr(10).join([f'{house}: {submissions}' for house, submissions in zip(HOUSES, submission_counts[activity[0]])])}"
         embed = discord.Embed(title="Submission counts for HW and ECs",
                               description=description,
                               color=constants.EMBED_COLOR)
 
         await ctx.send(embed=embed)
-
-
-
 
 
 def setup(bot):
