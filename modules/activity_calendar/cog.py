@@ -35,6 +35,7 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
         rows_to_announce = []
         idxs_to_delete = []
         for i, cell in enumerate(server_calendar_results):
+            # TODO: is there a way we can batch this? I think it's what makes this stuff so slow
             row = self.activity_calendar_sheet.row_values(cell.row)
             # Need the -1 because google sheets is 1-indexed while the lists are 0-indexed
             deadline_time = activity_calendar_utils.parse_date(row[activity_calendar_constants.SHEET_TIMESTAMP_COLUMN-1],
@@ -47,7 +48,7 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
             # Delete all rows which have already happened
             if deadline_time.month < utctime.month or (deadline_time.month == utctime.month and deadline_time.day - utctime.day < 0):
                 idxs_to_delete.append(i)
-
+        # Only make an announcement when we have something to announce
         if len(rows_to_announce):
             description = ""
             for row in rows_to_announce:
@@ -66,14 +67,20 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
     @commands.command(name="addactivity", aliases=["aactivity"])
     async def addactivity(self, ctx: commands.Context, *args):
         """Add an activity to the calendar
-        ~addactivity Dueling "Harry Potter Trivia!" Tuesday, May 11, 2021 7pm EDT https://www.reddit.com/r/Dueling"""
+        ~addactivity "Dueling" "Harry Potter Trivia!" Tuesday, May 11, 2021 7pm EDT https://www.reddit.com/r/Dueling"""
         logging_utils.log_command("addactivity", ctx.channel, ctx.author)
+        # Currently we require the args to be: Activity name, description, date, link
+        # They have to use quotes if they want the name or description to be more than 1 word.
+        # We pop off the name, description, and link, and what's left is the time.
+        # Should we make them put the time in quotes too? Then it would just make things cleaner on the back end
+        # I would prefer making it easier to use, though, I guess
         args = list(args)
         activity = args.pop(0)
         description = args.pop(0)
         link = args.pop()
 
         user_time = activity_calendar_utils.parse_date(' '.join(args))
+        # We store all our times in UTC on the spreadsheet
         spreadsheet_time = activity_calendar_utils.parse_date(user_time.strftime(activity_calendar_constants.SHEET_DATETIME_FORMAT), to_tz='UTC')
 
         embed = discord.Embed(title="Added To Activities Calendar",
@@ -125,7 +132,7 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
             date = activity_calendar_utils.parse_date(row[activity_calendar_constants.SHEET_TIMESTAMP_COLUMN-1],
                                                       from_tz=activity_calendar_constants.UTC,
                                                       to_tz=timezone)
-
+            # Only show activities that are 1 week out
             if date.day - current_date.day <= 7:
                 description += f"\n\n{activity_calendar_utils.replace_offset(date.strftime(activity_calendar_constants.DISPLAY_DATETIME_FORMAT))}: " \
                                f"[{row[activity_calendar_constants.SHEET_ACTIVITY_COLUMN-1]}:]({row[activity_calendar_constants.SHEET_LINK_COLUMN-1]})" \
@@ -142,14 +149,16 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
 
         ~deleteactivity Dueling"""
         logging_utils.log_command("deleteactivity", ctx.channel, ctx.author)
-
+        # In general, I've been adding activities with specifics e.g. "Dueling: Helga Game"
+        # If you want to delete only that instance, ~dactivity "Dueling: Helga Game"
+        # If you want to delete all dueling activities, ~dactivity Dueling
         activity = ' '.join(args)
         result_cells = self.activity_calendar_sheet.findall(ctx.guild.name, in_column=activity_calendar_constants.SHEET_SERVER_COLUMN)
         num_deletions = 0
         for cell in result_cells:
             row = self.activity_calendar_sheet.row_values(cell.row)
             if activity in row[activity_calendar_constants.SHEET_ACTIVITY_COLUMN-1]:
-                self.activity_calendar_sheet.delete_row(cell.row)
+                self.activity_calendar_sheet.delete_row(cell.row - num_deletions)
                 num_deletions += 1
         embed = discord_utils.create_embed()
         embed.add_field(name="Success",
@@ -160,6 +169,8 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
 
     # TODO: should this be in the house points module?
     # TODO: PROBABLY
+    # TODO: Be able to filter by activity
+    # e.g. ~submissions HW only shows HW
     @commands.command(name="submissions", aliases=["submission"])
     async def submissions(self, ctx):
         """Count submissions for homework and extra credit
