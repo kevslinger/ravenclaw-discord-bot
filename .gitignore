@@ -4,3 +4,4 @@ __pycache__
 venv/
 error_logfile.txt
 .idea
+modules/subreddit_analysis/chromedriver
