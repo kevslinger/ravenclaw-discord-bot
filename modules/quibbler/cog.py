@@ -18,6 +18,8 @@ class QuibblerCog(commands.Cog, name="Quibbler"):
             2.) The r/TheQuibbler submission form
             3.) The Issue profile page where all the quibbler's are stored
             4.) The Google Doc which has prompts for inspiration
+
+        ~quib
             """
         logging_utils.log_command("quibbler", ctx.channel, ctx.author)
         description = f"The Quibbler is a light-hearted, quirky, facts-optional online magazine where creativity " \

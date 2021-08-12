@@ -174,6 +174,7 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
     @commands.command(name="submissions", aliases=["submission"])
     async def submissions(self, ctx):
         """Count submissions for homework and extra credit
+
         ~submissions"""
         logging_utils.log_command("submissions", ctx.channel, ctx.author)
 
@@ -189,17 +190,28 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
                     activity_ids.append((row[activity_calendar_constants.SHEET_ACTIVITY_COLUMN-1], row[activity_calendar_constants.SHEET_DESCRIPTION_COLUMN-1], row[activity_calendar_constants.SHEET_LINK_COLUMN-1]))
 
         HOUSES = ["Gryffindor", "Hufflepuff", "Ravenclaw", "Slytherin"]
+        # TODO: I'm going to add some hardcoded stuff for Arthur's Artifacts Part 2
+        # UPDATE: nobody is putting their house in the comment so I guess I can't
+        #arthur_part2_submisssions = [0, 0, 0, 0]
         description = ""
         for activity in activity_ids:
             submission = asyncpraw.models.Submission(self.reddit_client, url=activity[2])
-            comments = await submission.comments()
-            for comment in comments:
+            for comment in await submission.comments():
                 for house in HOUSES:
                     if "submit" in comment.body.lower() and house.lower() in comment.body.lower():
                         if activity[0] not in submission_counts:
                             submission_counts[activity[0]] = [0, 0, 0, 0]
 
                         submission_counts[activity[0]][HOUSES.index(house)] = len(comment.replies)
+                        # Hardcoded thing for arthur's part 2
+                        # if activity[2] == "https://redd.it/owixx9":
+                        #
+                        #     for reply in comment.replies:
+                        #         for part2_submission in reply.replies:
+                        #             print(part2_submission.body)
+                        #             if house.lower() in part2_submission.body.lower():
+                        #                 arthur_part2_submisssions[HOUSES.index(house)] += 1
+
             if activity[0] in submission_counts:
                 description += f"\n\n**[{activity[0]}:]({activity[2]})** {activity[1]} \n" \
                                f"{chr(10).join([f'{house}: {submissions}' for house, submissions in zip(HOUSES, submission_counts[activity[0]])])}"

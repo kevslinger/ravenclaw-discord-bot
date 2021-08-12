@@ -1,12 +1,12 @@
-import os
 import discord
 from discord.ext import commands
 from utils import discord_utils, google_utils, logging_utils
 from modules.house_points import house_points_constants, house_points_utils
 from table2ascii import table2ascii, Alignment
 from datetime import datetime
-import constants
-
+import calendar
+import numpy as np
+import matplotlib.pyplot as plt
 
 class HousePointsCog(commands.Cog, name="House Points"):
     """Gets House Points data"""
@@ -17,16 +17,18 @@ class HousePointsCog(commands.Cog, name="House Points"):
         self.sheet_key = house_points_constants.HOUSE_POINTS_SHEET_KEY
         self.spreadsheet = self.client.open_by_key(self.sheet_key)
 
-        self.current_points_sheet = self.spreadsheet.worksheet("Tallies By Category")
-        self.past_points_sheet = self.spreadsheet.worksheet("Past Points")
+        self.current_points_sheet = self.spreadsheet.worksheet(house_points_constants.BY_CATEGORY_TAB_NAME)
+        self.past_points_sheet = self.spreadsheet.worksheet(house_points_constants.PAST_POINTS_TAB_NAME)
         self.past_cup_winner_sheet = self.spreadsheet.worksheet(house_points_constants.PAST_CUP_WINNERS_TAB_NAME)
-
+        self.points_tracker_sheet = self.spreadsheet.worksheet(house_points_constants.POINTS_TRACKER_SHEET)
 
     @commands.command(name="housepoints")
     async def housepoints(self, ctx, *args):
         """
         Get the Current House Points!
-        args (Optional): Month and Year to find historical house points (e.g. April 2015)"""
+        args (Optional): Month and Year to find historical house points (e.g. April 2015)
+
+        ~housepoints"""
         logging_utils.log_command("housepoints", ctx.channel, ctx.author)
         # If the user does not supply a month/date pair or they supplied one argument and it's the current month, or
         # they supplied both arguments and it is the *current* month/year
@@ -84,8 +86,9 @@ class HousePointsCog(commands.Cog, name="House Points"):
 
     @commands.command(name="housepointsbreakdown", aliases=['hpbd'])
     async def housepointsbreakdown(self, ctx):
-        """
-        Get the breakdown of current month's points by activity
+        """Get the breakdown of current month's points by activity
+
+        ~hpbd
         """
         logging_utils.log_command("housepointsbreakdown", ctx.channel, ctx.author)
         # TODO: Get Eastern Time?
@@ -112,7 +115,10 @@ class HousePointsCog(commands.Cog, name="House Points"):
 
     @commands.command(name="housecup")
     async def housecup(self, ctx, year: str = None):
-        """Command to get the yearly house cup standings"""
+        """Command to get the yearly house cup standings
+        Optional: Supply a year to get that year's results.
+
+        ~housecup"""
         logging_utils.log_command("housecup", ctx.channel, ctx.author)
         if year is None:
             year = str(datetime.now().year)
@@ -153,6 +159,47 @@ class HousePointsCog(commands.Cog, name="House Points"):
                               url=embed_url,
                               color=house_points_utils.get_winner_embed_color([wins for wins in total_wins]))
         await ctx.send(embed=embed)
+
+
+    @commands.command(name="housepointsgraph", aliases=["housepointgraph", "hpg"])
+    async def housepointsgraph(self, ctx):
+        """Get a graph showing the day-by-day house points race
+
+        ~hpg"""
+        logging_utils.log_command("housepointsgraph", ctx.channel, ctx.author)
+
+        now = datetime.now()
+        sheet_values = self.points_tracker_sheet.get_all_values()
+        house_points_tracker = {house: np.zeros(now.day)
+                                                for house in house_points_constants.HOUSES}
+        # TODO: Currently, columns are Timestamp, Name, Your House, Recipient, Points
+        # Their House, Reason, Optional Notes, Link
+        for row in sheet_values:
+            try:
+                # Points is the 5th column currently
+                points = int(row[4])
+                row_date = datetime.strptime(row[0], '%m/%d/%Y %H:%M:%S')
+                recipient_house = row[5]
+                house_points_tracker[recipient_house][row_date.day - 1] += points
+            # Either a string or blank
+            except ValueError:
+                continue
+
+        fig, ax = plt.subplots()
+        for house, color in zip(house_points_constants.HOUSES, ["r", "y", "b", "g"]):
+            ax.plot(range(1, now.day+1), np.cumsum(house_points_tracker[house]), color=color, label=house)
+        ax.set_xlim([1, now.day])
+        # TODO: I think this is a pretty upper bound now under the "new" system, but we'll have to see...
+        ax.set_ylim([0, 1650])
+        ax.grid(True)
+        ax.set_xlabel('Date')
+        ax.set_ylabel('Points')
+        ax.set_title(f"House Points Race, thru {now.strftime('%B %d, %Y')}")
+        ax.legend()
+        plt.savefig('house_points_graph.png')
+
+        await ctx.send(file=discord.File('house_points_graph.png'))
+
 
 def setup(bot):
     bot.add_cog(HousePointsCog(bot))

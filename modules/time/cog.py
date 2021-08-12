@@ -13,7 +13,9 @@ class TimeCog(commands.Cog, name="Time"):
 
     @commands.command(name="time")
     async def time(self, ctx, *args):
-        """Return the time in the specified location"""
+        """Return the time in the specified location
+
+        ~time Amsterdam"""
         logging_utils.log_command("time", ctx.channel, ctx.author)
         # No location provided
         if len(args) < 1:

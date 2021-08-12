@@ -175,6 +175,7 @@ class CipherRaceCog(commands.Cog, name="Cipher Race"):
         Check your  answer
         Usage: ~answer <your answer>
         """
+        channel = ctx.channel.id
         logging_utils.log_command("answer", ctx.channel, ctx.author)
         
         # if the team isn't puzzling then we need to instruct them to use startpuzzle command first.
@@ -223,6 +224,7 @@ class CipherRaceCog(commands.Cog, name="Cipher Race"):
     @commands.is_owner()
     async def reload(self, ctx):
         """
+        Admin Command.
         Reload the Google Sheet so we can update our codes instantly.
         Usage: ~reload
         """

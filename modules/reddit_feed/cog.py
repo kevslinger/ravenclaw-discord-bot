@@ -42,7 +42,8 @@ class RedditFeedCog(commands.Cog, name="Reddit Feed"):
 	@is_in_guild(constants.RAVENCLAW_DISCORD_ID)
 	async def resend(self, ctx):
 		"""Command to resend the last post again.
-		Invoked with ~resend"""
+
+		~resend"""
 		# log command in console
 		logging_utils.log_command("resend", ctx.channel, ctx.author)
 		# respond to command

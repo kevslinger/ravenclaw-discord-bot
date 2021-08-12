@@ -15,7 +15,10 @@ class ErrorLogCog(commands.Cog):
     @commands.command(name="errorlog")
     @commands.is_owner()
     async def errorlog(self, ctx, num_lines: int = 50):
-        """Shows errors in reverse chronological order"""
+        """Admin Command.
+        Shows errors in reverse chronological order
+
+        ~errorlog"""
         logging_utils.log_command("errorlog", ctx.channel, ctx.author)
         with open(error_constants.ERROR_LOGFILE, "r") as f:
             lines = f.readlines()

@@ -64,6 +64,9 @@ class LookupCog(commands.Cog, name="Lookup"):
 
     @commands.command(name="google")
     async def google(self, ctx, *args):
+        """Gets the top 10 google results for your query
+
+        ~google The Leaning Tower of Piza"""
         logging_utils.log_command("google", ctx.channel, ctx.author)
         results = lookup_utils.search_query(' '.join(args))
 
@@ -74,6 +77,9 @@ class LookupCog(commands.Cog, name="Lookup"):
 
     @commands.command(name="wikipedia", aliases=["wiki"])
     async def wikipedia(self, ctx, *args):
+        """Gets the Wikipedia article most closely related to your search
+
+        ~wiki Philadelphia"""
         logging_utils.log_command("wikipedia", ctx.channel, ctx.author)
         results = lookup_utils.search_query(' '.join(args), target_site=lookup_constants.WIKI)
 
