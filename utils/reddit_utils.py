@@ -3,7 +3,7 @@ import os
 import datetime
 
 
-def create_reddit_client(user: str="BOT"):
+def create_reddit_client(user: str = "BOT") -> asyncpraw.Reddit:
     """Initialize AsyncPraw reddit api
 
     UPDATE: added optional user arg so I can switch between
@@ -17,6 +17,6 @@ def create_reddit_client(user: str="BOT"):
     )
 
 
-def convert_reddit_timestamp(time) -> str:
+def convert_reddit_timestamp(time) -> datetime.datetime:
     """Convert from unix time to a datetime object"""
     return datetime.datetime.utcfromtimestamp(int(time))

@@ -52,7 +52,7 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
         if len(rows_to_announce):
             description = ""
             for row in rows_to_announce:
-                description += f"\n\n[{row[activity_calendar_constants.SHEET_ACTIVITY_COLUMN-1]}:]({row[activity_calendar_constants.SHEET_LINK_COLUMN-1]})" \
+                description += f"\n\n[{row[activity_calendar_constants.SHEET_ACTIVITY_COLUMN-1]}:]({row[activity_calendar_constants.SHEET_LINK_COLUMN-1]}) " \
                                f"{row[activity_calendar_constants.SHEET_DESCRIPTION_COLUMN-1]}"
             embed = discord.Embed(title=f"24 Hour Warning for the following activities!",
                                   description=description,

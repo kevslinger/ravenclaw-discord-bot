@@ -1,5 +1,6 @@
 __pycache__
 *.json
+*.png
 .env
 venv/
 error_logfile.txt
