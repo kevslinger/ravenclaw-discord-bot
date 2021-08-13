@@ -17,7 +17,7 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
         self.gspread_client = google_utils.create_gspread_client()
         self.activity_calendar_sheet = self.gspread_client.open_by_key(activity_calendar_constants.ACTIVITY_CALENDAR_SHEET_KEY).sheet1
 
-        self.reddit_client = reddit_utils.get_reddit_client()
+        self.reddit_client = reddit_utils.create_reddit_client()
 
     # Reload the google sheet every hour
     @commands.Cog.listener()

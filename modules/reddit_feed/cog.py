@@ -29,7 +29,7 @@ class RedditFeedCog(commands.Cog, name="Reddit Feed"):
 
 	def __init__(self, bot):
 		self.bot = bot
-		self.reddit = reddit_utils.get_reddit_client()
+		self.reddit = reddit_utils.create_reddit_client()
 
 	@commands.Cog.listener()
 	async def on_ready(self):
