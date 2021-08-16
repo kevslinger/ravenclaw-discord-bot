@@ -63,7 +63,7 @@ class SubredditAnalysisCog(commands.Cog, name="Subreddit Analysis"):
 
         # TODO: Move this plotting code to a util function?
         fig, ax = plt.subplots()
-        ax.plot(range(len(unique_pageviews)), unique_pageviews.values(),
+        ax.plot(range(len(unique_pageviews)), list(reversed(unique_pageviews.values())),
                 color='k', label="Unique Views")
         ax.set_xlabel('Date')
         ax.set_ylabel('Unique Views')
@@ -73,12 +73,12 @@ class SubredditAnalysisCog(commands.Cog, name="Subreddit Analysis"):
         ax.set_ylim([0, 500])
         ax.set_xlim([0, len(unique_pageviews)-1])
         ax.set_xticks(range(0, len(unique_pageviews), 3))
-        ax.set_xticklabels(list(unique_pageviews.keys())[::3])
+        ax.set_xticklabels(list(reversed(unique_pageviews.keys()))[::3])
         plt.xticks(rotation=45)
         ax2 = ax.twinx()
-        ax2.plot(range(len(submission_frequency_dict)), submission_frequency_dict.values(),
+        ax2.plot(range(len(submission_frequency_dict)), list(reversed(submission_frequency_dict.values())),
                  color='b', label="Submissions")
-        ax2.plot(range(len(comment_frequency_dict)), comment_frequency_dict.values(),
+        ax2.plot(range(len(comment_frequency_dict)), list(reversed(comment_frequency_dict.values())),
                  color='r', label="Comments")
         # TODO: I think it's better to hardcode limits
         # ax2.set_ylim([0, max(list(comment_frequency_dict.values()) + list(submission_frequency_dict.values()))+50])
