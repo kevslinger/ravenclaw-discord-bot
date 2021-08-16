@@ -73,7 +73,7 @@ class SubredditAnalysisCog(commands.Cog, name="Subreddit Analysis"):
         ax.set_ylim([0, 500])
         ax.set_xlim([0, len(unique_pageviews)-1])
         ax.set_xticks(range(0, len(unique_pageviews), 3))
-        ax.set_xticklabels(list(unique_pageviews.values())[::3])
+        ax.set_xticklabels(list(unique_pageviews.keys())[::3])
         plt.xticks(rotation=45)
         ax2 = ax.twinx()
         ax2.plot(range(len(submission_frequency_dict)), submission_frequency_dict.values(),
