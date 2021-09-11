@@ -41,6 +41,26 @@ def main():
                     f"Welcome to {guild.name.capitalize()}, {after.mention}!")
             else:
                 print("Error, Could not find welcome channel")
+        # I'm also going to add welcome messages for visitors and exchange students
+        elif constants.RAVENCLAW_DISCORD_VISITOR_ROLE_ID not in [role.id for role in before.roles] and \
+            constants.RAVENCLAW_DISCORD_VISITOR_ROLE_ID in [role.id for role in after.roles]:
+            welcome_channel = guild.get_channel(constants.RAVENCLAW_DISCORD_THE_TOWER_ID)
+            if welcome_channel:
+                await welcome_channel.send(
+                    f"Let's give a warm welcome to our new visitor, {after.mention}! Welcome to {guild.name.capitalize()}!"
+                )
+            else:
+                print("Error, Could not find welcome channel")
+        elif constants.RAVENCLAW_DISCORD_EXCHANGE_STUDENT_ROLE_ID not in [role.id for role in before.roles] and \
+            constants.RAVENCLAW_DISCORD_EXCHANGE_STUDENT_ROLE_ID in [role.id for role in after.roles]:
+            welcome_channel = guild.get_channel(constants.RAVENCLAW_DISCORD_THE_TOWER_ID)
+            if welcome_channel:
+                await welcome_channel.send(
+                    f"Welcome to {guild.name.capitalize()}, {after.mention}! We're so glad to have you on exchange this month."
+                )
+            else:
+                print("Error, could not find welcome channel")
+
 
     client.run(DISCORD_TOKEN)
 
