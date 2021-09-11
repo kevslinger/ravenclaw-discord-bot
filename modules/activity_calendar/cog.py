@@ -1,7 +1,7 @@
 from discord.ext import commands
 from discord.ext.tasks import loop
-from modules.activity_calendar import activity_calendar_constants, activity_calendar_utils
-from utils import google_utils, discord_utils, logging_utils, reddit_utils
+from modules.activity_calendar import activity_calendar_constants
+from utils import google_utils, discord_utils, logging_utils, reddit_utils, time_utils
 
 import constants
 import discord
@@ -38,7 +38,7 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
             # TODO: is there a way we can batch this? I think it's what makes this stuff so slow
             row = self.activity_calendar_sheet.row_values(cell.row)
             # Need the -1 because google sheets is 1-indexed while the lists are 0-indexed
-            deadline_time = activity_calendar_utils.parse_date(row[activity_calendar_constants.SHEET_TIMESTAMP_COLUMN-1],
+            deadline_time = time_utils.parse_date(row[activity_calendar_constants.SHEET_TIMESTAMP_COLUMN-1],
                                                            from_tz=row[activity_calendar_constants.SHEET_TIMESTAMP_COLUMN-1].split()[-1],
                                                            to_tz=activity_calendar_constants.UTC)
 
@@ -79,9 +79,9 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
         description = args.pop(0)
         link = args.pop()
 
-        user_time = activity_calendar_utils.parse_date(' '.join(args))
+        user_time = time_utils.parse_date(' '.join(args))
         # We store all our times in UTC on the spreadsheet
-        spreadsheet_time = activity_calendar_utils.parse_date(user_time.strftime(activity_calendar_constants.SHEET_DATETIME_FORMAT), to_tz='UTC')
+        spreadsheet_time = time_utils.parse_date(user_time.strftime(activity_calendar_constants.SHEET_DATETIME_FORMAT), to_tz='UTC')
 
         embed = discord.Embed(title="Added To Activities Calendar",
                               color=constants.EMBED_COLOR)
@@ -105,10 +105,10 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
         description = ""
         for cell in server_calendar_results:
             row = self.activity_calendar_sheet.row_values(cell.row)
-            date = activity_calendar_utils.parse_date(row[activity_calendar_constants.SHEET_TIMESTAMP_COLUMN-1],
+            date = time_utils.parse_date(row[activity_calendar_constants.SHEET_TIMESTAMP_COLUMN-1],
                                                       from_tz=activity_calendar_constants.UTC,
                                                       to_tz=timezone)
-            description += f"\n\n{activity_calendar_utils.replace_offset(date.strftime(activity_calendar_constants.DISPLAY_DATETIME_FORMAT))}: " \
+            description += f"\n\n{time_utils.replace_offset(date.strftime(activity_calendar_constants.DISPLAY_DATETIME_FORMAT))}: " \
                            f"[{row[activity_calendar_constants.SHEET_ACTIVITY_COLUMN-1]}]({row[activity_calendar_constants.SHEET_LINK_COLUMN-1]})"
         embed = discord.Embed(title="Current Activity Calendar",
                               description=description,
@@ -124,17 +124,17 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
 
         server_calendar_results = self.activity_calendar_sheet.findall(ctx.guild.name, in_column=activity_calendar_constants.SHEET_SERVER_COLUMN)
         description = ""
-        current_date = activity_calendar_utils.parse_date(datetime.utcnow().strftime(activity_calendar_constants.SHEET_DATETIME_FORMAT),
+        current_date = time_utils.parse_date(datetime.utcnow().strftime(activity_calendar_constants.SHEET_DATETIME_FORMAT),
                                                           from_tz=activity_calendar_constants.UTC,
                                                           to_tz=timezone)
         for cell in server_calendar_results:
             row = self.activity_calendar_sheet.row_values(cell.row)
-            date = activity_calendar_utils.parse_date(row[activity_calendar_constants.SHEET_TIMESTAMP_COLUMN-1],
+            date = time_utils.parse_date(row[activity_calendar_constants.SHEET_TIMESTAMP_COLUMN-1],
                                                       from_tz=activity_calendar_constants.UTC,
                                                       to_tz=timezone)
             # Only show activities that are 1 week out
             if date.day - current_date.day <= 7:
-                description += f"\n\n{activity_calendar_utils.replace_offset(date.strftime(activity_calendar_constants.DISPLAY_DATETIME_FORMAT))}: " \
+                description += f"\n\n{time_utils.replace_offset(date.strftime(activity_calendar_constants.DISPLAY_DATETIME_FORMAT))}: " \
                                f"[{row[activity_calendar_constants.SHEET_ACTIVITY_COLUMN-1]}:]({row[activity_calendar_constants.SHEET_LINK_COLUMN-1]})" \
                                f" {row[activity_calendar_constants.SHEET_DESCRIPTION_COLUMN-1]}"
 
@@ -190,9 +190,6 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
                     activity_ids.append((row[activity_calendar_constants.SHEET_ACTIVITY_COLUMN-1], row[activity_calendar_constants.SHEET_DESCRIPTION_COLUMN-1], row[activity_calendar_constants.SHEET_LINK_COLUMN-1]))
 
         HOUSES = ["Gryffindor", "Hufflepuff", "Ravenclaw", "Slytherin"]
-        # TODO: I'm going to add some hardcoded stuff for Arthur's Artifacts Part 2
-        # UPDATE: nobody is putting their house in the comment so I guess I can't
-        #arthur_part2_submisssions = [0, 0, 0, 0]
         description = ""
         for activity in activity_ids:
             submission = asyncpraw.models.Submission(self.reddit_client, url=activity[2])
@@ -203,14 +200,6 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
                             submission_counts[activity[0]] = [0, 0, 0, 0]
 
                         submission_counts[activity[0]][HOUSES.index(house)] = len(comment.replies)
-                        # Hardcoded thing for arthur's part 2
-                        # if activity[2] == "https://redd.it/owixx9":
-                        #
-                        #     for reply in comment.replies:
-                        #         for part2_submission in reply.replies:
-                        #             print(part2_submission.body)
-                        #             if house.lower() in part2_submission.body.lower():
-                        #                 arthur_part2_submisssions[HOUSES.index(house)] += 1
 
             if activity[0] in submission_counts:
                 description += f"\n\n**[{activity[0]}:]({activity[2]})** {activity[1]} \n" \

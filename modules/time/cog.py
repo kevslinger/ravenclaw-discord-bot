@@ -1,8 +1,11 @@
 import geopy
 import os
 from discord.ext import commands
-from utils import discord_utils, logging_utils
+from utils import discord_utils, logging_utils, time_utils
 from datetime import datetime
+import discord
+import constants
+
 
 class TimeCog(commands.Cog, name="Time"):
     """Get time and timezone of any location"""
@@ -10,6 +13,62 @@ class TimeCog(commands.Cog, name="Time"):
     def __init__(self, bot):
         self.bot = bot
         self.geopy_client = geopy.geocoders.GeoNames(os.getenv("GEOPY_USERNAME"))
+
+    @commands.command(name="unixtime")
+    async def unixtime(self, ctx, *args):
+        """Return the time given (or current time if no argument) in Unix format (1626206635)
+
+        Usage: `~unixtime Tuesday, September 27, 2021 9pm EDT"""
+        logging_utils.log_command("time", ctx.channel, ctx.author)
+        embed = discord_utils.create_embed()
+        if len(args) < 1:
+            curr_time = int(datetime.timestamp(datetime.now()))
+            embed.add_field(name="Success!", value=f"Current time is `{curr_time}`", inline=False)
+        else:
+            user_time = time_utils.parse_date(" ".join(args))
+            if user_time is None:
+                embed.add_field(name=f"{constants.FAILED}!",
+                                value=f"Is {' '.join(args)} a valid time?",
+                                inline=False)
+                await ctx.send(embed=embed)
+                return
+            unix_time = int(datetime.timestamp(user_time))
+            embed.add_field(name=f"{constants.SUCCESS}!",
+                            value=f"The Unix Time at {' '.join(args)} is `{unix_time}`",
+                            inline=False)
+
+        await ctx.send(embed=embed)
+
+    @commands.command(name="countdown")
+    async def countdown(self, ctx, *args):
+        """Uses discord message time formatting to provide a countdown
+
+        Usage: `~countdown September 22, 2021 9:00pm EDT`
+        """
+        logging_utils.log_command("countdown", ctx.channel, ctx.author)
+
+        if len(args) < 1:
+            embed = discord_utils.create_no_argument_embed("time")
+            await ctx.send(embed=embed)
+            return
+
+        user_time = time_utils.parse_date(" ".join(args))
+
+        if user_time is None:
+            embed = discord_utils.create_embed()
+            embed.add_field(name=f"Failed!",
+                            value=f"Is {' '.join(args)} a valid time?",
+                            inline=False)
+            await ctx.send(embed=embed)
+            return
+
+        unix_time = int(datetime.timestamp(user_time))
+        embed = discord.Embed(title=f"{' '.join(args)}",
+                              description=f"<t:{unix_time}:f>\n"
+                                          f"`<t:{unix_time}:R>` - <t:{unix_time}:R>\n\n"
+                                          f"[Guide to format](https://discord.com/developers/docs/reference#message-formatting-formats)",
+                              color=constants.EMBED_COLOR)
+        await ctx.send(embed=embed)
 
     @commands.command(name="time")
     async def time(self, ctx, *args):
