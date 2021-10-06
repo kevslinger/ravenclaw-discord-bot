@@ -92,13 +92,11 @@ class TimeCog(commands.Cog, name="Time"):
             await ctx.send(embed=embed)
             return
 
-        names = ["Location",
-                 "Timezone",
+        names = ["Location (Timezone)",
                  "Current Time"]
         # The DB provides a - (GMT) for west timezones but not a + for the east
-        values = [f"{location.title()}",
-                  format_gmt_offset(timezone_dict),
-                  format_time(timezone_dict['time'])]
+        values = [f"{location.title()} ({time_utils.format_gmt_offset(timezone_dict)})",
+                  time_utils.format_time(timezone_dict['time'])]
         embed = discord_utils.populate_embed(names, values, inline=False)
 
         await ctx.send(embed=embed)
@@ -114,24 +112,6 @@ class TimeCog(commands.Cog, name="Time"):
         except AttributeError:
             pass
         return tz
-
-
-def format_time(time):
-    """Rearrange time str. Comes in as YYYY-MM-DD HH:MM, change to MM-DD-YYYY HH:MM"""
-    date = datetime.strptime(time, "%Y-%m-%d %H:%M")
-    return date.strftime('%B %d, %H:%M')
-
-def format_gmt_offset(timezone_dict):
-    """Find GMT offset (include dst if applicable)"""
-    raw_offset = timezone_dict['gmtOffset']
-    dst_offset = timezone_dict['dstOffset']
-    if raw_offset == dst_offset:
-        return f"{timezone_dict['timezoneId']} (" + (
-            "+" if timezone_dict['gmtOffset'] > 0 else "") + f"{timezone_dict['gmtOffset']})"
-    else:
-        return f"{timezone_dict['timezoneId']} (" + (
-            "+" if timezone_dict['gmtOffset'] > 0 else "") + f"{timezone_dict['gmtOffset']}/" + \
-                ("+" if timezone_dict['dstOffset'] > 0 else "") + f"{timezone_dict['dstOffset']})"
 
 
 def setup(bot):

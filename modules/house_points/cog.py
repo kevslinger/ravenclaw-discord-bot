@@ -1,10 +1,11 @@
 import discord
 from discord.ext import commands
+
+import constants
 from utils import discord_utils, google_utils, logging_utils
 from modules.house_points import house_points_constants, house_points_utils
 from table2ascii import table2ascii, Alignment
 from datetime import datetime
-import calendar
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -14,13 +15,46 @@ class HousePointsCog(commands.Cog, name="House Points"):
     def __init__(self, bot):
         self.bot = bot
         self.client = google_utils.create_gspread_client()
-        self.sheet_key = house_points_constants.HOUSE_POINTS_SHEET_KEY
-        self.spreadsheet = self.client.open_by_key(self.sheet_key)
+        self.spreadsheet = self.client.open_by_key(house_points_constants.HOUSE_POINTS_SHEET_KEY)
 
         self.current_points_sheet = self.spreadsheet.worksheet(house_points_constants.BY_CATEGORY_TAB_NAME)
         self.past_points_sheet = self.spreadsheet.worksheet(house_points_constants.PAST_POINTS_TAB_NAME)
         self.past_cup_winner_sheet = self.spreadsheet.worksheet(house_points_constants.PAST_CUP_WINNERS_TAB_NAME)
         self.points_tracker_sheet = self.spreadsheet.worksheet(house_points_constants.POINTS_TRACKER_SHEET)
+
+    def mj_sleep_count(self):
+        main_sheet = self.client.open_by_key(constants.MAIN_SHEET_KEY)
+        mewj_sleep_tab = main_sheet.worksheet("MewJ Sleep Count")
+        sleep_count = mewj_sleep_tab.cell(1, 1).value
+        embed = discord_utils.create_embed()
+        embed.add_field(name="MJ Sleep Count",
+                        value=f"Hello Mjenious, you have fallen asleep while watching Kdrama {sleep_count} times",
+                        inline=False)
+        return embed
+
+    # TODO: It doesn't really belong here.... but while we have the meme here anyways, maybe it's fine
+
+    @commands.command(name="mjsleep", aliases=["mewjsleep", "mjasleep", "sleepymj"])
+    @commands.has_any_role(
+        *constants.MOD_ROLES,
+        constants.KEV_SERVER_TESTER_ROLE
+    )
+    async def mjsleep(self, ctx):
+        """
+        Add one to MJ's sleep count
+        Usage: `~mjsleep`"""
+        logging_utils.log_command("mjsleep", ctx.channel, ctx.author)
+
+        main_sheet = self.client.open_by_key(constants.MAIN_SHEET_KEY)
+        mewj_sleep_tab = main_sheet.worksheet("MewJ Sleep Count")
+        sleep_count = int(mewj_sleep_tab.cell(1, 1).value)
+        mewj_sleep_tab.update_cell(1, 1, f"{sleep_count+1}")
+
+        embed = discord_utils.create_embed()
+        embed.add_field(name="Success",
+                        value=f"MJ's sleep count is now {sleep_count+1}",
+                        inline=False)
+        await ctx.send(embed=embed)
 
     @commands.command(name="housepoints")
     async def housepoints(self, ctx, *args):
@@ -28,8 +62,13 @@ class HousePointsCog(commands.Cog, name="House Points"):
         Get the Current House Points!
         args (Optional): Month and Year to find historical house points (e.g. April 2015)
 
-        ~housepoints"""
+        Usage: `~housepoints~`"""
         logging_utils.log_command("housepoints", ctx.channel, ctx.author)
+
+        if ctx.author.id == 429476086016114706:
+            embed = self.mj_sleep_count()
+            await ctx.send(embed=embed)
+            return
         # If the user does not supply a month/date pair or they supplied one argument and it's the current month, or
         # they supplied both arguments and it is the *current* month/year
         if (len(args) < 1) or (len(args) == 1 and args[0] == datetime.now().strftime('%B')) or (' '.join(args[:2]) == datetime.now().strftime('%B %Y')):
@@ -88,9 +127,15 @@ class HousePointsCog(commands.Cog, name="House Points"):
     async def housepointsbreakdown(self, ctx):
         """Get the breakdown of current month's points by activity
 
-        ~hpbd
+        Usage: `~hpbd`
         """
         logging_utils.log_command("housepointsbreakdown", ctx.channel, ctx.author)
+
+        if ctx.author.id == 429476086016114706:
+            embed = self.mj_sleep_count()
+            await ctx.send(embed=embed)
+            return
+
         # TODO: Get Eastern Time?
         title = f"House Points Breakdown as of {datetime.now().strftime('%B %d')}"
 
@@ -118,7 +163,7 @@ class HousePointsCog(commands.Cog, name="House Points"):
         """Command to get the yearly house cup standings
         Optional: Supply a year to get that year's results.
 
-        ~housecup"""
+        Usage: `~housecup`"""
         logging_utils.log_command("housecup", ctx.channel, ctx.author)
         if year is None:
             year = str(datetime.now().year)
@@ -165,7 +210,7 @@ class HousePointsCog(commands.Cog, name="House Points"):
     async def housepointsgraph(self, ctx):
         """Get a graph showing the day-by-day house points race
 
-        ~hpg"""
+        Usage: `~hpg`"""
         logging_utils.log_command("housepointsgraph", ctx.channel, ctx.author)
 
         now = datetime.now()
