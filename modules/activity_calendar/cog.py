@@ -40,7 +40,7 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
             # Need the -1 because google sheets is 1-indexed while the lists are 0-indexed
             deadline_time = time_utils.parse_date(row[activity_calendar_constants.SHEET_TIMESTAMP_COLUMN-1],
                                                            from_tz=row[activity_calendar_constants.SHEET_TIMESTAMP_COLUMN-1].split()[-1],
-                                                           to_tz=activity_calendar_constants.UTC)
+                                                           to_tz=constants.UTC)
 
             # Check that we are 24 hours away from the event.
             if deadline_time.day - utctime.day == 1 and deadline_time.hour - utctime.hour == 0:
@@ -60,6 +60,7 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
             channel = self.bot.get_channel(activity_calendar_constants.ACTIVITY_CALENDAR_CHANNEL_ID)
             await channel.send(embed=embed)
         # Rows are 1-indexed, but enumerate is 0-indexed
+        idxs_to_delete = sorted(idxs_to_delete, reverse=True)
         for idx in idxs_to_delete:
             self.activity_calendar_sheet.delete_row(idx+1)
 
@@ -81,21 +82,21 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
 
         user_time = time_utils.parse_date(' '.join(args))
         # We store all our times in UTC on the spreadsheet
-        spreadsheet_time = time_utils.parse_date(user_time.strftime(activity_calendar_constants.SHEET_DATETIME_FORMAT), to_tz='UTC')
+        spreadsheet_time = time_utils.parse_date(user_time.strftime(constants.SHEET_DATETIME_FORMAT), to_tz=constants.UTC)
 
         embed = discord.Embed(title="Added To Activities Calendar",
                               color=constants.EMBED_COLOR)
-        embed.add_field(name="Time", value=user_time.strftime(activity_calendar_constants.DISPLAY_DATETIME_FORMAT), inline=False)
+        embed.add_field(name="Time", value=user_time.strftime(constants.DISPLAY_DATETIME_FORMAT), inline=False)
         embed.add_field(name="Activity", value=f"{activity}", inline=False)
         embed.add_field(name="Description", value=f"{description}", inline=False)
         embed.add_field(name="Link", value=link, inline=False)
         await ctx.send(embed=embed)
 
-        self.activity_calendar_sheet.append_row([ctx.guild.name, spreadsheet_time.strftime(activity_calendar_constants.SHEET_DATETIME_FORMAT), activity, description, link])
+        self.activity_calendar_sheet.append_row([ctx.guild.name, spreadsheet_time.strftime(constants.SHEET_DATETIME_FORMAT), activity, description, link])
         self.activity_calendar_sheet.sort((activity_calendar_constants.SHEET_TIMESTAMP_COLUMN, 'asc'))
 
     @commands.command(name="showactivitycalendar", aliases=["cal", "showcalendar", "activities"])
-    async def showactivitycalendar(self, ctx, timezone: str = activity_calendar_constants.UTC):
+    async def showactivitycalendar(self, ctx, timezone: str = constants.UTC):
         """Displays the current activity calendar
         Can add a timezone to display the times in that timezone
 
@@ -106,9 +107,9 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
         for cell in server_calendar_results:
             row = self.activity_calendar_sheet.row_values(cell.row)
             date = time_utils.parse_date(row[activity_calendar_constants.SHEET_TIMESTAMP_COLUMN-1],
-                                                      from_tz=activity_calendar_constants.UTC,
+                                                      from_tz=constants.UTC,
                                                       to_tz=timezone)
-            description += f"\n\n{time_utils.replace_offset(date.strftime(activity_calendar_constants.DISPLAY_DATETIME_FORMAT))}: " \
+            description += f"\n\n{time_utils.replace_offset(date.strftime(constants.DISPLAY_DATETIME_FORMAT))}: " \
                            f"[{row[activity_calendar_constants.SHEET_ACTIVITY_COLUMN-1]}]({row[activity_calendar_constants.SHEET_LINK_COLUMN-1]})"
         embed = discord.Embed(title="Current Activity Calendar",
                               description=description,
@@ -116,7 +117,7 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
         await ctx.send(embed=embed)
 
     @commands.command(name="showweekcalendar", aliases=["week", "showweek"])
-    async def showweekcalendar(self, ctx, timezone: str = activity_calendar_constants.UTC):
+    async def showweekcalendar(self, ctx, timezone: str = constants.UTC):
         """Show the calendar for the next 7 days
 
         ~showweekcalendar EDT"""
@@ -124,17 +125,17 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
 
         server_calendar_results = self.activity_calendar_sheet.findall(ctx.guild.name, in_column=activity_calendar_constants.SHEET_SERVER_COLUMN)
         description = ""
-        current_date = time_utils.parse_date(datetime.utcnow().strftime(activity_calendar_constants.SHEET_DATETIME_FORMAT),
-                                                          from_tz=activity_calendar_constants.UTC,
+        current_date = time_utils.parse_date(datetime.utcnow().strftime(constants.SHEET_DATETIME_FORMAT),
+                                                          from_tz=constants.UTC,
                                                           to_tz=timezone)
         for cell in server_calendar_results:
             row = self.activity_calendar_sheet.row_values(cell.row)
             date = time_utils.parse_date(row[activity_calendar_constants.SHEET_TIMESTAMP_COLUMN-1],
-                                                      from_tz=activity_calendar_constants.UTC,
+                                                      from_tz=constants.UTC,
                                                       to_tz=timezone)
             # Only show activities that are 1 week out
             if date.day - current_date.day <= 7:
-                description += f"\n\n{time_utils.replace_offset(date.strftime(activity_calendar_constants.DISPLAY_DATETIME_FORMAT))}: " \
+                description += f"\n\n{time_utils.replace_offset(date.strftime(constants.DISPLAY_DATETIME_FORMAT))}: " \
                                f"[{row[activity_calendar_constants.SHEET_ACTIVITY_COLUMN-1]}:]({row[activity_calendar_constants.SHEET_LINK_COLUMN-1]})" \
                                f" {row[activity_calendar_constants.SHEET_DESCRIPTION_COLUMN-1]}"
 
@@ -155,6 +156,8 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
         activity = ' '.join(args)
         result_cells = self.activity_calendar_sheet.findall(ctx.guild.name, in_column=activity_calendar_constants.SHEET_SERVER_COLUMN)
         num_deletions = 0
+        # TODO: I think this whole num_deletions thing becomes a non-issue if we just sort the rows
+        # in a descending order
         for cell in result_cells:
             row = self.activity_calendar_sheet.row_values(cell.row)
             if activity in row[activity_calendar_constants.SHEET_ACTIVITY_COLUMN-1]:

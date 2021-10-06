@@ -36,6 +36,12 @@ MOD_ROLES = [HEADOFHOUSE_ROLE_ID, HEADHUMAN_ROLE_ID, PREFECT_ROLE_ID, HEADPROF_R
 SUCCESS = "Success"
 FAILED = "Failed"
 
+# Used for time utils
+UTC = 'UTC'
+
+DISPLAY_DATETIME_FORMAT = "%a %B %d, %H:%M %Z"
+SHEET_DATETIME_FORMAT = "%m/%d/%y %H:%M %Z"
+
 ####################
 ## GOOGLE SHEETS ###
 ####################
