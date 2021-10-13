@@ -2,6 +2,7 @@ from discord.ext import commands
 from discord.ext.tasks import loop
 
 from datetime import datetime
+import pytz
 from utils import logging_utils, google_utils, discord_utils
 import constants
 
@@ -26,7 +27,7 @@ class ChecklistCog(commands.Cog, name="Checklist"):
     @loop(hours=1)
     async def post_checklist(self):
         """Post the monthly checklist to mod chat at Noon UTC on the first of every month."""
-        utctime = datetime.utcnow()
+        utctime = datetime.now(tz=pytz.UTC)
 
         # Fuck it I'm shooting for noon UTC on the first of the month
         if utctime.day == 1 and utctime.hour == 12:

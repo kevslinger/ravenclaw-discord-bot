@@ -8,8 +8,8 @@ from utils import logging_utils, time_utils, google_utils, discord_utils
 import constants
 
 
-class ReminderCog(commands.Cog, name="Subreddit Analysis"):
-    """Track engagement with number of posts"""
+class ReminderCog(commands.Cog, name="Reminder"):
+    """Need to remind yourself of something? I'm here to help!"""
     def __init__(self, bot):
         self.bot = bot
         self.gspread_client = google_utils.create_gspread_client()
