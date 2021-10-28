@@ -77,8 +77,7 @@ class ChecklistCog(commands.Cog, name="Christmas"):
 
             color=constants.EMBED_COLOR
         )
-        channel = self.bot.get_channel(christmas_countdown_constants.COMMON_ROOM_CHANNEL_ID)
-        await channel.send(embed=embed)
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
