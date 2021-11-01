@@ -38,7 +38,7 @@ class ChecklistCog(commands.Cog, name="Checklist"):
                             value=checklist,
                             inline=False)
             # Get ravenclaw mod chat
-            mod_chat_channel = await self.bot.get_channel(518227474191220777)
+            mod_chat_channel = self.bot.get_channel(518227474191220777)
             await mod_chat_channel.send(embed=embed)
 
     @commands.command(name="monthlychecklist", aliases=["monthchecklist"])
