@@ -57,9 +57,7 @@ class ActivityCalendarCog(commands.Cog, name="Activity Calendar"):
             embed = discord.Embed(title=f"24 Hour Warning for the following activities!",
                                   description=description,
                                   color=constants.EMBED_COLOR)
-            #channel = self.bot.get_channel(activity_calendar_constants.ACTIVITY_CALENDAR_CHANNEL_ID)
-            # TODO: Changing activity calendar to beauxbatons for exchange month
-            channel = self.bot.get_channel(646268504227446785)
+            channel = self.bot.get_channel(activity_calendar_constants.ACTIVITY_CALENDAR_CHANNEL_ID)
             await channel.send(embed=embed)
         # Rows are 1-indexed, but enumerate is 0-indexed
         idxs_to_delete = sorted(idxs_to_delete, reverse=True)
